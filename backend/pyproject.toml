@@ -1,0 +1,10 @@
+# Run from the repository root (PowerShell, Python 3.13):
+# Create the environment only if backend/venv does not exist:
+# py -3.13 -m venv backend/venv
+# .\backend\venv\Scripts\python.exe -m pip install -r backend/requirements-dev.txt
+# .\backend\venv\Scripts\python.exe -B -m pytest -p no:cacheprovider -c backend/pyproject.toml backend/tests
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"

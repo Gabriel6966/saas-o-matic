@@ -1,0 +1,3 @@
+# Test dependency only; the domain uses Python's standard library.
+# Selected after installation in the local virtual environment.
+pytest==8.4.2
