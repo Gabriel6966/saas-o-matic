@@ -2,7 +2,7 @@
 
 Prueba técnica Full-Stack AI-Augmented — herramienta interna de simulación de suscripciones SaaS.
 
-> **Estado actual:** motor de facturación y API de clientes, previsualización, guardado e historial de simulaciones con SQLite implementados. Angular y la integración de divisas todavía no están implementados.
+> **Estado actual:** motor de facturación y seis endpoints REST con SQLite implementados. Angular permite buscar y paginar clientes, abrir su ficha responsive y consultar el historial original en EUR. Los formularios de alta y simulación, preview interactivo, guardado desde la interfaz y conversión de divisas quedan para las siguientes fases.
 
 ## Stack aprobado
 - Frontend: Angular + TypeScript
@@ -15,6 +15,7 @@ Prueba técnica Full-Stack AI-Augmented — herramienta interna de simulación d
 - Especificación inicial: [`ai-workspace/01-requirements.md`](ai-workspace/01-requirements.md)
 - Instrucciones para Codex: [`AGENTS.md`](AGENTS.md)
 - Bitácora de IA: [`ai-workspace/05-ai-development-log.md`](ai-workspace/05-ai-development-log.md)
+- Dirección visual de Angular: [`ai-workspace/04-frontend-design.md`](ai-workspace/04-frontend-design.md)
 
 ## Ejecución local
 
@@ -48,7 +49,45 @@ $env:CORS_ORIGINS = 'http://localhost:4200'
 
 Las rutas SQLite relativas se resuelven desde `backend/`. CORS admite solo los orígenes configurados, sin comodín ni credenciales; el valor inicial permite `http://localhost:4200`. Esto no verifica el CORS de la API externa de divisas.
 
-### Comprobación manual
+### Frontend Angular
+
+Entorno comprobado en este equipo: Node **26.13.0**, npm **11.20.0**, Angular **22.2.6**, CLI/build **22.2.7**, TypeScript **6.0.2**, RxJS **7.8.2**, Vitest **5.0.3** y jsdom **30.0.0**. Dependencias directas fijadas en `frontend/package.json` y resolución transitiva en `frontend/package-lock.json`.
+
+Se eligió Angular 22 estable porque está en soporte activo y admite Node `^22.22.3`, `^24.15.0` o `^26.0.0`, TypeScript `>=6.0 <6.1` y RxJS 7.8.2 según la [tabla oficial de compatibilidad](https://angular.dev/reference/versions) y la [política de soporte](https://angular.dev/reference/releases). No se ha instalado Node ni Angular CLI globalmente. Solo se ha probado la combinación concreta indicada arriba.
+
+Con FastAPI arrancado en una consola, abre otra consola PowerShell en la raíz:
+
+```powershell
+node --version
+npm --version
+npm --prefix frontend ci --no-fund
+npm --prefix frontend start
+```
+
+Abre [Angular](http://localhost:4200/) y mantén FastAPI en [http://127.0.0.1:8000](http://127.0.0.1:8000). `npm start` usa el origen `http://localhost:4200`, permitido por el CORS inicial. Si cambias el origen del navegador, configura `CORS_ORIGINS` en la consola del backend antes de arrancarlo. Detén cada servidor con Ctrl+C en su consola.
+
+La URL del backend se configura en `frontend/public/config.js`, mediante `apiBaseUrl`, por defecto `http://127.0.0.1:8000`. Es configuración pública, sin secretos; se carga antes de Angular. No necesita recompilar: tras cambiarla, recarga el navegador. En un compilado ya generado cambia su copia `frontend/dist/saas-o-matic/browser/config.js` o vuelve a compilar.
+
+Flujo disponible:
+
+- `/customers`: lista real, búsqueda parcial por empresa o exacta por identificador completo, debounce de 300 ms, cancelación inmediata de consultas antiguas y paginación de 20 elementos. La URL conserva `q` y `offset` para el regreso y la navegación del navegador.
+- `/customers/:customer_id`: tarjetas de empresa y plan actual, con correo, país e identificador; historial paginado de solo lectura con consumos, base, impuesto, total EUR, tasa, país y plan originales. Las fechas indican UTC y las cadenas decimales del servidor se muestran sin pasar por `Number`.
+- Estados de carga, directorio vacío, búsqueda sin coincidencias, cliente inexistente, historial vacío, fallo HTTP/red y espera agotada a los 10 segundos, con reintentos. El fallo de historial conserva la ficha.
+
+No se incluyen datos de demostración ni se escribe desde Angular. En una base nueva el directorio estará vacío; puedes preparar datos ficticios mediante los ejemplos de la API que siguen. No hay controles de alta, nueva simulación o divisas que aparenten estar disponibles.
+
+Build de producción y pruebas Angular, también desde la raíz:
+
+```powershell
+npm --prefix frontend run build
+npm --prefix frontend test
+```
+
+El compilado está en `frontend/dist/saas-o-matic/browser`. Los tests usan el runner oficial Angular/Vitest con jsdom y `HttpTestingController`; no requieren arrancar FastAPI.
+
+Se verificaron instalación desde el lockfile, arranque de ambos servidores y navegación contra FastAPI real sobre SQLite temporal, con datos declarados ficticios. La revisión en navegador cubrió escritorio a 1440 × 1000, móvil a 390 × 844 y ficha a 320 × 700, teclado, paginación y recuperación tras detener/reiniciar la API. No equivale a una auditoría de accesibilidad ni a una instalación en otro equipo. Comandos, resultados e incidencias se registran en la [bitácora](ai-workspace/05-ai-development-log.md).
+
+### Comprobación manual de la API
 
 Con el servidor arrancado, en otra consola PowerShell:
 
