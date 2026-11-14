@@ -32,3 +32,18 @@ def customer_payload():
         "country_code": "ES",
         "plan": "Plan de prueba",
     }
+
+
+@pytest.fixture
+def customer(client, customer_payload):
+    response = client.post("/customers", json=customer_payload)
+    assert response.status_code == 201, response.text
+    return response.json()
+
+
+@pytest.fixture
+def simulation_payload(customer):
+    return {
+        "customer_id": customer["id"], "active_users": 15,
+        "storage_gb": 100, "api_calls": 1000,
+    }

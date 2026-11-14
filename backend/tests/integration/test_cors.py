@@ -103,7 +103,8 @@ def test_documented_entrypoint_preserves_docs_and_dependency_overrides():
         with TestClient(app, raise_server_exceptions=False) as client:
             assert client.get("/docs").status_code == 200
             assert set(client.get("/openapi.json").json()["paths"]) == {
-                "/customers", "/customers/{customer_id}",
+                "/customers", "/customers/{customer_id}", "/customers/{customer_id}/simulations",
+                "/simulations/preview", "/simulations",
             }
             response = client.get("/customers", headers={"Origin": "http://localhost:4200"})
         assert called == [True]

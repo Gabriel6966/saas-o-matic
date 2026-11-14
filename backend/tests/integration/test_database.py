@@ -24,7 +24,7 @@ def test_reconnection_preserves_data_without_reinitializing(application, client,
     reopened = create_app(Settings(database_url=database_url))
     with TestClient(reopened) as other_client:
         assert other_client.get(f"/customers/{created['id']}").json() == created
-        assert inspect(reopened.state.engine).get_table_names() == ["customers"]
+        assert inspect(reopened.state.engine).get_table_names() == ["customers", "simulations"]
 
 
 def test_database_enforces_composite_uniqueness(application, client, customer_payload):
@@ -124,7 +124,7 @@ def test_explicit_init_command_is_reproducible_from_another_directory(tmp_path):
         assert result.returncode == 0, result.stdout + result.stderr
     engine = create_database_engine(f"sqlite:///{path}")
     try:
-        assert inspect(engine).get_table_names() == ["customers"]
+        assert inspect(engine).get_table_names() == ["customers", "simulations"]
     finally:
         engine.dispose()
 

@@ -6,11 +6,13 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
 from ..application.customers import CustomerAlreadyExistsError, CustomerNotFoundError
+from ..domain.errors import TaxPolicyNotConfiguredError
 from ..domain.tax_identifiers import TaxIdentifierError
 
 _SAFE_FIELDS = {
     "company_name", "tax_identifier", "email", "country_code", "plan",
     "q", "limit", "offset", "customer_id",
+    "active_users", "storage_gb", "api_calls",
 }
 _TAX_MESSAGES = {
     "invalid_tax_identifier_format": "El identificador fiscal no tiene un formato admitido.",
@@ -80,6 +82,12 @@ def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(CustomerNotFoundError)
     async def not_found(_request: Request, _error: CustomerNotFoundError):
         return error_response(404, "customer_not_found", "El cliente no existe.")
+
+    @app.exception_handler(TaxPolicyNotConfiguredError)
+    async def tax_policy_not_configured(_request: Request, _error: TaxPolicyNotConfiguredError):
+        return error_response(
+            422, "tax_policy_not_configured", "El país del cliente no tiene una política fiscal configurada.",
+        )
 
     @app.exception_handler(HTTPException)
     async def http_error(_request: Request, error: HTTPException):
