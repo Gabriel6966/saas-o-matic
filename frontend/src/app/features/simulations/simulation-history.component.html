@@ -1,0 +1,55 @@
+@let view = state();
+<section class="history" aria-labelledby="history-title" [attr.aria-busy]="view.status === 'loading'">
+  <header class="history-heading">
+    <div><h2 id="history-title" tabindex="-1">Historial de simulaciones</h2><p>Resultados originales guardados en EUR.</p></div>
+    @if (view.status === 'success') { <span class="count-label">{{ view.data.total_count }} {{ view.data.total_count === 1 ? 'simulación' : 'simulaciones' }}</span> }
+  </header>
+  @switch (view.status) {
+    @case ('loading') {
+      <div class="surface"><app-status-panel kind="loading" title="Cargando el historial" message="Estamos recuperando las simulaciones guardadas." /></div>
+    }
+    @case ('error') {
+      <div class="surface"><app-status-panel kind="error" title="No se pudo cargar el historial" [message]="view.error.message"
+        [details]="view.error.details" actionLabel="Reintentar historial" (action)="retry()" /></div>
+    }
+    @case ('success') {
+      @if (view.data.items.length) {
+        <ol class="simulation-list">
+          @for (simulation of view.data.items; track simulation.id) {
+            <li>
+              <article class="surface simulation-card" [attr.aria-labelledby]="'simulation-' + simulation.id">
+                <header class="simulation-heading">
+                  <div><h3 [id]="'simulation-' + simulation.id">Simulación #{{ simulation.id }}</h3><time [attr.datetime]="simulation.created_at">{{ simulation.created_at | utcDate }} UTC</time></div>
+                  <div class="simulation-total"><span>Total mensual</span><strong>{{ simulation.total_amount }} <small>{{ simulation.currency }}</small></strong></div>
+                </header>
+                <dl class="usage-fields">
+                  <div><dt>Usuarios activos</dt><dd>{{ simulation.active_users }}</dd></div>
+                  <div><dt>Almacenamiento</dt><dd>{{ simulation.storage_gb }} <span>GB</span></dd></div>
+                  <div><dt>Llamadas API</dt><dd>{{ simulation.api_calls }}</dd></div>
+                </dl>
+                <dl class="amount-fields">
+                  <div><dt>Base</dt><dd>{{ simulation.base_amount }} EUR</dd></div>
+                  <div><dt>Impuesto</dt><dd>{{ simulation.tax_amount }} EUR</dd></div>
+                </dl>
+                <details class="snapshot">
+                  <summary>Contexto del cálculo</summary>
+                  <dl>
+                    <div><dt>País guardado</dt><dd>{{ simulation.country_code | countryName }} ({{ simulation.country_code }})</dd></div>
+                    <div><dt>Plan guardado</dt><dd>{{ simulation.plan }}</dd></div>
+                    <div><dt>Tasa aplicada (fracción)</dt><dd>{{ simulation.tax_rate }}</dd></div>
+                  </dl>
+                  <p>Datos conservados al guardar. La tasa expresa la fracción aplicada sobre la base.</p>
+                </details>
+              </article>
+            </li>
+          }
+        </ol>
+      } @else {
+        <div class="surface"><app-status-panel [title]="view.data.total_count ? 'Esta página del historial está vacía' : 'Todavía no hay simulaciones'"
+          [message]="view.data.total_count ? 'Vuelve al inicio del historial para consultar los registros disponibles.' : 'Las simulaciones guardadas para esta empresa aparecerán aquí con su consumo y desglose mensual.'" /></div>
+      }
+      <app-pagination class="history-pagination" label="Paginación del historial" [offset]="view.data.offset" [limit]="view.data.limit"
+        [total]="view.data.total_count" [itemCount]="view.data.items.length" (pageChange)="goToOffset($event)" />
+    }
+  }
+</section>

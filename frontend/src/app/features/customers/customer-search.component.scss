@@ -1,0 +1,45 @@
+.directory { overflow: clip; }
+.search-area { padding: 28px; border-bottom: 1px solid var(--line); background: var(--accent-wash); }
+label { display: block; margin-bottom: 12px; font-weight: 650; }
+.search-controls { display: flex; gap: 12px; }
+.search-input-wrap { position: relative; flex: 1; min-width: 0; }
+.search-input-wrap svg { position: absolute; top: 16px; left: 16px; width: 22px; height: 22px; fill: none; stroke: var(--accent); stroke-width: 1.8px; pointer-events: none; }
+input { width: 100%; min-height: 56px; padding: 12px 16px 12px 50px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: var(--paper); }
+input::placeholder { color: var(--muted); opacity: 1; }
+input[aria-invalid='true'] { border-color: var(--error); }
+#search-help { color: var(--muted); font-size: 13px; margin-top: 12px; max-width: 80ch; }
+.field-error { color: var(--error); margin-top: 12px; font-size: 14px; }
+.list-columns, .customer-row { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.2fr) minmax(0, 1.1fr) 100px; gap: 24px; align-items: center; }
+.list-columns { padding: 12px 28px; background: var(--mist); color: var(--muted); font-size: 13px; }
+.customer-list { margin: 0; padding: 0; list-style: none; }
+.customer-list li + li { border-top: 1px solid var(--line); }
+.customer-row { min-height: 96px; padding: 20px 28px; color: var(--ink); text-decoration: none; }
+.customer-row:hover { background: var(--accent-wash); }
+.customer-row:focus-visible { outline-offset: -4px; }
+.company-cell { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.company-cell strong { font-size: 16px; font-weight: 650; overflow-wrap: anywhere; }
+.company-initial { flex: 0 0 44px; height: 44px; display: grid; place-content: center; border-radius: 12px; color: var(--accent); background: var(--accent-wash); font-family: var(--font-heading); font-size: 23px; }
+.tax-cell { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; font-size: 14px; }
+.country-cell { display: flex; align-items: center; gap: 8px; font-size: 14px; flex-wrap: wrap; }
+.open-customer { color: var(--accent); display: flex; align-items: center; justify-content: flex-end; gap: 8px; font-size: 13px; font-weight: 650; }
+.open-customer svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5px; flex-shrink: 0; }
+.mobile-label { display: none; }
+@media (max-width: 900px) {
+  .list-columns, .customer-row { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, .8fr); gap: 16px; }
+  .list-columns span:last-child { display: none; }
+  .open-customer { display: none; }
+}
+@media (max-width: 600px) {
+  .search-area { padding: 20px; }
+  .search-controls { gap: 8px; }
+  .search-controls .button { padding: 10px 12px; }
+  input { min-height: 52px; padding-left: 40px; font-size: 16px; }
+  .search-input-wrap svg { left: 12px; width: 18px; }
+  .list-columns { display: none; }
+  .customer-row { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 20px; }
+  .company-cell { gap: 12px; }
+  .company-initial { flex-basis: 36px; height: 36px; font-size: 20px; }
+  .tax-cell, .country-cell { margin-left: 48px; }
+  .mobile-label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 2px; }
+  .open-customer { display: flex; justify-content: flex-start; margin-left: 48px; }
+}

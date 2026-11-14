@@ -1,0 +1,20 @@
+:host { display: flex; min-height: 100dvh; flex-direction: column; }
+.app-header { background: var(--ink); color: var(--paper); }
+.app-header-inner { max-width: 1200px; min-height: 88px; margin: auto; padding: 0 32px; display: flex; align-items: center; gap: 56px; }
+.brand { display: inline-flex; gap: 12px; align-items: center; color: inherit; text-decoration: none; font-family: var(--font-heading); font-size: 23px; font-weight: 600; letter-spacing: -.5px; white-space: nowrap; }
+.brand svg { width: 40px; height: 40px; fill: none; stroke: currentColor; stroke-width: 2px; }
+.brand path { stroke-width: 2.5px; stroke-linejoin: round; }
+nav { align-self: stretch; display: flex; }
+nav a { display: flex; align-items: center; padding: 0 4px; border-bottom: 3px solid transparent; color: var(--paper); text-decoration: none; font-weight: 600; }
+nav a.nav-active { border-color: var(--paper); }
+.header-caption { margin-left: auto; font-size: 14px; opacity: .85; }
+main { flex: 1; width: 100%; padding-top: 48px; padding-bottom: 64px; }
+.app-footer { width: 100%; display: flex; justify-content: space-between; gap: 16px; padding-top: 24px; padding-bottom: 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+@media (max-width: 700px) {
+  .app-header-inner { min-height: 76px; padding: 0 20px; gap: 24px; justify-content: space-between; }
+  .brand { font-size: 20px; }
+  .brand svg { width: 32px; height: 32px; }
+  .header-caption { display: none; }
+  main { padding-top: 32px; padding-bottom: 40px; }
+  .app-footer { flex-direction: column; gap: 4px; }
+}

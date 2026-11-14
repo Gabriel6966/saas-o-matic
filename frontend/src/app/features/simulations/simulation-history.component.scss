@@ -1,0 +1,33 @@
+:host { display: block; min-width: 0; }
+.history-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.history-heading p { margin-top: 8px; color: var(--muted); font-size: 14px; }
+.simulation-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; }
+.simulation-card { overflow: clip; }
+.simulation-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 28px; background: var(--accent-wash); border-bottom: 1px solid var(--line); }
+.simulation-heading h3 { font-size: 16px; }
+time { display: block; margin-top: 8px; color: var(--muted); font-size: 13px; }
+.simulation-total { text-align: right; flex-shrink: 0; }
+.simulation-total > span { display: block; font-size: 13px; color: var(--muted); }
+.simulation-total strong { display: block; font-size: 28px; font-weight: 650; letter-spacing: -.6px; font-variant-numeric: tabular-nums; color: var(--accent); }
+.simulation-total small { font-size: 14px; letter-spacing: 0; }
+.usage-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; padding: 24px 28px; }
+.usage-fields dd { margin-top: 6px; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.usage-fields dd span { font-size: 14px; font-weight: 400; }
+.amount-fields { display: flex; flex-wrap: wrap; gap: 24px 48px; padding: 0 28px 24px; }
+.amount-fields dd { margin-top: 4px; font-variant-numeric: tabular-nums; font-weight: 600; }
+.snapshot { border-top: 1px solid var(--line); padding: 0 28px; font-size: 14px; }
+summary { min-height: 52px; padding: 16px 0; color: var(--accent); font-weight: 600; cursor: pointer; }
+.snapshot dl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr); gap: 20px; padding: 4px 0 16px; }
+.snapshot dt { font-size: 13px; }
+.snapshot dd { margin-top: 4px; }
+.snapshot p { color: var(--muted); font-size: 13px; padding-bottom: 20px; }
+.history-pagination { display: block; margin-top: 20px; }
+@media (max-width: 600px) {
+  .history-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .simulation-heading { flex-direction: column; align-items: stretch; padding: 20px; gap: 16px; }
+  .simulation-total { text-align: left; padding-top: 16px; border-top: 1px solid var(--line); }
+  .usage-fields { padding: 20px; grid-template-columns: 1fr 1fr; gap: 20px 16px; }
+  .amount-fields { padding: 0 20px 20px; gap: 24px; }
+  .snapshot { padding: 0 20px; }
+  .snapshot dl { grid-template-columns: 1fr; gap: 16px; }
+}
