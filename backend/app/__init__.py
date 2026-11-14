@@ -1,1 +1,1 @@
-"""SaaS-O-Matic backend package; HTTP and persistence are not implemented."""
+"""SaaS-O-Matic backend: billing domain and customer API."""
