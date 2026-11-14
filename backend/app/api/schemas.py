@@ -1,10 +1,12 @@
 import re
 import unicodedata
-from typing import Annotated
+from typing import Annotated, Literal
 
 from email_validator import EmailNotValidError, validate_email
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, field_validator
 from pydantic_core import PydanticCustomError
+
+from ..domain.money import cents_to_amount
 
 MAX_RESOURCE_ID = 9_007_199_254_740_991
 
@@ -96,10 +98,9 @@ class ErrorEnvelope(BaseModel):
     error: ErrorBody
 
 
-class CustomerQuery(BaseModel):
+class PaginationQuery(BaseModel):
     model_config = ConfigDict(strict=True, extra="forbid")
 
-    q: Text = Field(default="", max_length=200)
     limit: int = Field(default=20, ge=1, le=100)
     offset: int = Field(default=0, ge=0, le=MAX_RESOURCE_ID)
 
@@ -107,6 +108,52 @@ class CustomerQuery(BaseModel):
     @classmethod
     def parse_pagination(cls, value):
         return parse_decimal_parameter(value)
+
+
+class CustomerQuery(PaginationQuery):
+    q: Text = Field(default="", max_length=200)
+
+
+class SimulationCreate(BaseModel):
+    model_config = ConfigDict(strict=True, extra="forbid")
+
+    customer_id: int = Field(ge=1, le=MAX_RESOURCE_ID)
+    active_users: int = Field(ge=0, le=1_000_000)
+    storage_gb: int = Field(ge=0, le=1_000_000)
+    api_calls: int = Field(ge=0, le=1_000_000)
+
+
+class SimulationPreview(BaseModel):
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+    customer_id: int
+    active_users: int
+    storage_gb: int
+    api_calls: int
+    country_code: str = Field(validation_alias="country_snapshot")
+    plan: str = Field(validation_alias="plan_snapshot")
+    base_amount: str = Field(validation_alias="base_cents")
+    tax_rate: str = Field(validation_alias="tax_rate_applied")
+    tax_amount: str = Field(validation_alias="tax_cents")
+    total_amount: str = Field(validation_alias="total_cents")
+    currency: Literal["EUR"]
+
+    @field_validator("base_amount", "tax_amount", "total_amount", mode="before")
+    @classmethod
+    def serialize_cents(cls, value):
+        return format(cents_to_amount(value), ".2f")
+
+
+class SimulationRead(SimulationPreview):
+    id: int
+    created_at: str = Field(pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")
+
+
+class SimulationList(BaseModel):
+    items: list[SimulationRead]
+    limit: int
+    offset: int
+    total_count: int
 
 
 class NoQuery(BaseModel):

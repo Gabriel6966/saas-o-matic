@@ -1,46 +1,20 @@
-import json
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, Request, Response
-from fastapi.routing import APIRoute
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Query, Response
 
 from ...application import customers as service
-from ..dependencies import get_session
-from ..errors import error_response
+from ..dependencies import SessionDependency
+from ..routing import JsonRoute
 from ..schemas import (
     CustomerCreate, CustomerId, CustomerList, CustomerQuery,
     CustomerRead, ErrorEnvelope, NoQuery,
 )
 
 
-class JsonRoute(APIRoute):
-    def get_route_handler(self):
-        original_handler = super().get_route_handler()
-
-        async def handler(request: Request):
-            if request.method == "POST":
-                media_type = request.headers.get("content-type", "").split(";", 1)[0].strip().lower()
-                if media_type != "application/json":
-                    return error_response(415, "unsupported_media_type", "Se requiere application/json.")
-                try:
-                    json.loads(await request.body(), parse_constant=reject_non_finite_json)
-                except (ValueError, UnicodeError):
-                    return error_response(400, "invalid_json", "El cuerpo no contiene JSON válido.")
-            return await original_handler(request)
-
-        return handler
-
-
-def reject_non_finite_json(_value):
-    raise ValueError("Non-finite values are not JSON numbers.")
-
-
 router = APIRouter(
     prefix="/customers", route_class=JsonRoute,
     responses={422: {"model": ErrorEnvelope}, 500: {"model": ErrorEnvelope}},
 )
-SessionDependency = Annotated[Session, Depends(get_session)]
 
 
 @router.post("", status_code=201, response_model=CustomerRead, responses={

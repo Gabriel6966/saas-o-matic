@@ -8,6 +8,6 @@ if __name__ == "__main__":
     engine = create_database_engine(Settings.from_env().database_url)
     try:
         initialize_schema(engine)
-        print("SQLite: esquema de clientes inicializado.")
+        print("SQLite: esquema de clientes y simulaciones inicializado.")
     finally:
         engine.dispose()

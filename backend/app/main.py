@@ -4,7 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .api.errors import register_error_handlers
-from .api.routers.customers import router
+from .api.routers.customers import router as customers_router
+from .api.routers.simulations import router as simulations_router
 from .config import Settings
 from .persistence.database import create_database_engine, create_session_factory
 
@@ -25,7 +26,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.engine = engine
     application.state.session_factory = create_session_factory(engine)
     register_error_handlers(application)
-    application.include_router(router)
+    application.include_router(customers_router)
+    application.include_router(simulations_router)
     return application
 
 

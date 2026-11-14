@@ -2,7 +2,7 @@
 
 Prueba técnica Full-Stack AI-Augmented — herramienta interna de simulación de suscripciones SaaS.
 
-> **Estado actual:** motor puro de facturación y API de clientes con SQLite implementados. Los endpoints de simulaciones, su historial y Angular todavía no están implementados.
+> **Estado actual:** motor de facturación y API de clientes, previsualización, guardado e historial de simulaciones con SQLite implementados. Angular y la integración de divisas todavía no están implementados.
 
 ## Stack aprobado
 - Frontend: Angular + TypeScript
@@ -37,7 +37,7 @@ Instala las dependencias en ese entorno e inicializa explícitamente el esquema:
 
 Para ejecutar sin las herramientas de pruebas basta instalar `backend/requirements.txt`. No hace falta activar el entorno ni cambiar el PATH. `backend/.venv` es el entorno anterior con Python 3.9 y no es el utilizado actualmente.
 
-Por defecto, SQLite se guarda en `backend/data/saas-o-matic.sqlite3`; la ruta no depende del directorio de trabajo. No se crean tablas al arrancar ni al recibir peticiones: ejecuta `backend/init_db.py` antes de usar la API. Repetirlo conserva los datos existentes; no migra esquemas antiguos. La base local y ambos entornos están excluidos de Git.
+Por defecto, SQLite se guarda en `backend/data/saas-o-matic.sqlite3`; la ruta no depende del directorio de trabajo. No se crean tablas al arrancar ni al recibir peticiones: ejecuta `backend/init_db.py` antes de usar la API. Si ya tienes la base de clientes del PR #3, repite ese comando para añadir la tabla de simulaciones sin borrar clientes ni registros existentes. No modifica columnas de tablas previas ni migra esquemas incompatibles. La base local, sus archivos auxiliares y ambos entornos están excluidos de Git.
 
 `backend/.env.example` contiene valores de referencia, sin secretos. No se carga automáticamente. Para cambiarlos, define estas variables en la misma consola **antes de inicializar y arrancar**:
 
@@ -75,7 +75,60 @@ Invoke-RestMethod -Uri "$base/customers/$($customer.id)"
 
 El alta devuelve 201 y `Location`; las consultas, 200. El identificador se conserva como `00000023T`, el país como `ES` y el correo como `Pruebas@example.com`. Repetir país e identificador devuelve 409, aunque cambie el correo. Son datos construidos para pruebas; no acreditan identidad real.
 
-Los tres endpoints implementados son `POST /customers`, `GET /customers` y `GET /customers/{customer_id}`. La documentación de desarrollo está en [Swagger UI](http://127.0.0.1:8000/docs). La búsqueda usa casefold Unicode e `instr`: conserva acentos y trata `%` y `_` literalmente. Los identificadores se buscan completos, sin exigir que `q` supere su control fiscal.
+Las rutas de clientes son `POST /customers`, `GET /customers` y `GET /customers/{customer_id}`. Junto con las tres operaciones de simulaciones completan los seis contratos REST. La documentación de desarrollo está en [Swagger UI](http://127.0.0.1:8000/docs). La búsqueda usa casefold Unicode e `instr`: conserva acentos y trata `%` y `_` literalmente. Los identificadores se buscan completos, sin exigir que `q` supere su control fiscal.
+
+### Simulaciones e historial
+
+En la misma consola, utiliza el cliente recién creado:
+
+```powershell
+$inputs = @{
+    customer_id = $customer.id
+    active_users = 15
+    storage_gb = 100
+    api_calls = 1000
+} | ConvertTo-Json
+
+$preview = Invoke-WebRequest -UseBasicParsing -Method Post -Uri "$base/simulations/preview" -ContentType 'application/json' -Body $inputs
+$preview.StatusCode
+$preview.Content | ConvertFrom-Json
+
+$saved = Invoke-WebRequest -UseBasicParsing -Method Post -Uri "$base/simulations" -ContentType 'application/json' -Body $inputs
+$saved.StatusCode
+$saved.Content | ConvertFrom-Json
+
+Invoke-RestMethod -Uri "$base/customers/$($customer.id)/simulations?limit=20&offset=0"
+```
+
+Ejemplos reales de una ejecución con Uvicorn y PowerShell sobre una base temporal y datos ficticios. Los identificadores y fechas variarán en cada base. Ambos POST recibieron este cuerpo:
+
+```json
+{"customer_id":1,"active_users":15,"storage_gb":100,"api_calls":1000}
+```
+
+`POST /simulations/preview` → 200. Calcula sin escribir y no devuelve identificador ni fecha de simulación:
+
+```json
+{"customer_id":1,"active_users":15,"storage_gb":100,"api_calls":1000,"country_code":"ES","plan":"Plan de prueba","base_amount":"140.00","tax_rate":"0.21","tax_amount":"29.40","total_amount":"169.40","currency":"EUR"}
+```
+
+`POST /simulations` → 201. Vuelve a consultar el cliente y a calcular antes de confirmar la escritura:
+
+```json
+{"customer_id":1,"active_users":15,"storage_gb":100,"api_calls":1000,"country_code":"ES","plan":"Plan de prueba","base_amount":"140.00","tax_rate":"0.21","tax_amount":"29.40","total_amount":"169.40","currency":"EUR","id":1,"created_at":"2026-11-14T11:56:40Z"}
+```
+
+`GET /customers/1/simulations?limit=20&offset=0` → 200:
+
+```json
+{"items":[{"customer_id":1,"active_users":15,"storage_gb":100,"api_calls":1000,"country_code":"ES","plan":"Plan de prueba","base_amount":"140.00","tax_rate":"0.21","tax_amount":"29.40","total_amount":"169.40","currency":"EUR","id":1,"created_at":"2026-11-14T11:56:40Z"}],"limit":20,"offset":0,"total_count":1}
+```
+
+Los cuatro campos de entrada son enteros JSON estrictos: `customer_id` entre 1 y 9007199254740991; los consumos entre 0 y 1000000. Cero usuarios es válido. Se rechazan campos adicionales con 422, incluidos importes, país, plan, tasa y moneda. País y plan proceden del cliente almacenado. Un cliente inexistente devuelve 404; un país sin política fiscal devuelve 422 `tax_policy_not_configured`, también con cero usuarios. Almacenamiento, llamadas API y plan se conservan sin añadir cargos no definidos en el enunciado.
+
+Preview y guardado usan el mismo motor de dominio con `Decimal`. SQLite conserva dinero en céntimos INTEGER, la tasa como texto decimal exacto y la fecha como texto UTC ISO 8601 con segundos y `Z`. El historial devuelve las entradas y el resultado guardados, sin recalcular ni consultar divisas; ordena por fecha e identificador descendentes y filtra por cliente antes de contar y paginar. La FK impide borrar un cliente con simulaciones; no hay cascada destructiva.
+
+Cada POST de guardado válido crea una fila, incluso si se repite el cuerpo. Ante un resultado incierto, consulta el historial; no reintentes automáticamente. No se devuelve `Location` ni existe `GET /simulations/{id}`.
 
 ### Pruebas y verificaciones
 
@@ -106,7 +159,7 @@ Fuentes contrastadas antes de implementar:
 
 K/L/M e históricos quedan fuera del alcance. Se reconocen como no soportados K/L/M con su estructura, DNI antiguo de ocho cifras sin letra y NIE X con ocho cifras; no se convierten ni se completan documentos. No se comprueban códigos provinciales ni se intenta detectar variantes históricas indistinguibles del formato actual.
 
-La validación es algorítmica: no acredita existencia, titularidad ni vigencia censal. Para otros países solo se comprueban longitud y caracteres ASCII permitidos, sin validación fiscal oficial. Se permite registrar países sin política fiscal; su rechazo corresponde al futuro cálculo de simulaciones.
+La validación es algorítmica: no acredita existencia, titularidad ni vigencia censal. Para otros países solo se comprueban longitud y caracteres ASCII permitidos, sin validación fiscal oficial. Se permite registrar países sin política fiscal; se rechazan al previsualizar o guardar simulaciones.
 
 Esta entrega es local y no incorpora autenticación/autorización. Un despliegue público requeriría resolverlas. Usa datos ficticios; el arranque documentado desactiva el log de acceso para no registrar búsquedas ni identificadores en las URL. El motor conserva la política fiscal comercial simplificada; no representa toda la fiscalidad B2B.
 

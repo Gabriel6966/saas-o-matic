@@ -212,7 +212,10 @@ def test_cors_is_explicit_and_location_is_exposed(client, customer_payload):
 
 def test_openapi_describes_the_actual_error_envelope_and_location(client):
     paths = client.get("/openapi.json").json()["paths"]
-    assert set(paths) == {"/customers", "/customers/{customer_id}"}
+    assert set(paths) == {
+        "/customers", "/customers/{customer_id}", "/customers/{customer_id}/simulations",
+        "/simulations/preview", "/simulations",
+    }
     post = paths["/customers"]["post"]["responses"]
     assert "Location" in post["201"]["headers"]
     for operation in (paths["/customers"]["post"], paths["/customers"]["get"], paths["/customers/{customer_id}"]["get"]):
