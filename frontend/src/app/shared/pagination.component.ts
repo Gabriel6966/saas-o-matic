@@ -14,9 +14,9 @@ import { Component, computed, input, output } from '@angular/core';
           <button class="button button--secondary" type="button" (click)="pageChange.emit(0)">Volver al inicio</button>
         }
         <button class="button button--secondary" type="button" [disabled]="offset() === 0"
-          (click)="pageChange.emit(previous())">Anterior</button>
+          (click)="pageChange.emit(previous())"><svg aria-hidden="true" viewBox="0 0 16 16"><path d="m10 4-4 4 4 4"/></svg>Anterior</button>
         <button class="button button--secondary" type="button" [disabled]="offset() + limit() >= total()"
-          (click)="pageChange.emit(offset() + limit())">Siguiente</button>
+          (click)="pageChange.emit(offset() + limit())">Siguiente<svg aria-hidden="true" viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></button>
       </div>
     </nav>
   `,

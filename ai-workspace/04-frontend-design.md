@@ -1,5 +1,7 @@
 # SaaS-O-Matic — Dirección visual del primer flujo Angular
 
+> **Dirección vigente:** Editorial B2B premium, aprobada por el usuario en el Prompt #29B. El diseño del Prompt #29 se conserva debajo como registro histórico; la sección final describe el rediseño autorizado.
+
 **Fecha:** 2026-11-14. **Alcance:** Prompt #29, en `feature/angular-dashboard`. Diseño e implementación local de búsqueda, detalle e historial de solo lectura; pendientes de revisión humana. El usuario ha encargado ejecutar el Markdown adjunto en este chat. No autoriza commit, publicación ni PR.
 
 ## Usuario, tarea y fuentes
@@ -111,3 +113,66 @@ Entorno final: Angular 22.2.6, CLI/build 22.2.7, Node 26.13.0, npm 11.20.0, Type
 Se conservaron cuatro capturas locales reales en `frontend/__screenshots__/`, excluidas de Git: `prompt29-dashboard-desktop.jpg`, `prompt29-detail-desktop.jpg`, `prompt29-detail-mobile.jpg` y `prompt29-history-mobile.jpg`. Solo contienen fixtures ficticias procedentes de una base de verificación independiente. La base se eliminó y los servidores se detuvieron al terminar; no se añadieron semillas a la aplicación. Las capturas no forman parte de la evidencia versionada y su referencia no implica que se hayan subido al repositorio.
 
 Queda la revisión humana del resultado visual y funcional. Alta, simulador interactivo, guardado desde Angular y divisas siguen fuera de esta entrega. No se preparó PR ni se hizo commit o push.
+
+## Prompt #29B — Editorial B2B premium
+
+**Decisión humana:** tras presentar Editorial B2B premium y Consola SaaS contemporánea sin editar archivos, el usuario respondió: «Apruebo la opcion 1, Editorial B2B premium». La rama comprobada es `feature/premium-dashboard-redesign`, limpia al comenzar, sobre el merge del PR #5 (`9d9404c`). Se conserva la aprobación del concepto; la revisión de su implementación sigue pendiente.
+
+### Composición autorizada
+
+La búsqueda se separa del listado para que sea el punto de entrada de la tarea. Cabecera clara, marca refinada y una sola navegación operativa. Se eliminan las iniciales decorativas de las filas; nombre, identificación y país comparten una retícula legible, de unos 72 px de altura mínima. El conteo procede exclusivamente de la respuesta consultada, también cuando hay filtro.
+
+La ficha mantiene tarjetas responsive: identidad principal y plan secundario con proporciones y superficies diferentes. Se reduce el texto y espacio previos a los datos. El historial se organiza como un registro continuo: fecha e ID a la izquierda, total original EUR destacado a la derecha, consumos y desglose en grupos alineados y contexto histórico desplegable. No se deriva ningún precio ni indicador nuevo.
+
+```text
+Marca                                      Clientes
+Clientes
+Buscar clientes [empresa o identificador completo] [Limpiar]
+Directorio / resultados                    Conteo real
+Empresa                    Identificador   País     Ficha
+Filas continuas, sin tarjetas por empresa
+Rango consultado                           Anterior / Siguiente
+
+Volver a clientes (búsqueda y página conservadas)
+Ficha de cliente
+[ Identidad de empresa, dominante ] [ Plan actual, secundario ]
+Historial original                         Conteo real
+Fecha / ID                                 Total EUR
+Usuarios / GB / llamadas                   Base / impuesto
+Contexto guardado desplegable
+```
+
+### Sistema visual
+
+- Petróleo `#173F43`: marca, títulos y texto principal.
+- Bosque `#2E604F`: acciones, selección y foco.
+- Fondo cálido `#F4F2ED` y papel `#FFFEFA`: lienzo y superficies.
+- Texto secundario `#5F6A63` y error `#A43040`: ayuda y validación. Separadores y fondos suaves se derivan mediante mezclas.
+- Georgia para títulos de página e identidad; Segoe UI para lectura, controles e importes tabulares. Ambas están instaladas en este equipo. Se usan fuentes del sistema, sin redistribuir archivos, descargas, CDN ni dependencia nueva; alternativas serif y system-ui.
+- Escala de espacio de 4 px; botones y campos de 44 px como mínimo; radios de 8 px en controles y 16 px en superficies principales. Sombra discreta reservada al buscador. Transiciones de color/borde, sin desplazamientos decorativos, desactivadas con `prefers-reduced-motion`.
+
+En móvil, búsqueda y resultados aprovechan el ancho; los datos conservan etiquetas y saltos de línea. Identidad y plan se apilan y el registro económico distribuye sus grupos sin scroll horizontal. Se comprobarán 320/375 px, tablet y escritorio, incluidos nombres, planes, correo e identificadores largos.
+
+### Autocrítica, límites y verificación prevista
+
+Un fondo cálido y una serif por sí solos repetirían una fórmula visual. La diferencia debe estar en la composición: separar búsqueda y resultados, retirar las iniciales que no identifican por sí solas a la empresa, diferenciar las tarjetas por su contenido y reducir la altura de cada registro histórico. No se añade navegación lateral ni destinos futuros, al existir un recorrido principal.
+
+Cambios previstos: plantillas y SCSS de cabecera, búsqueda, ficha e historial; estilos globales y componentes de estado/paginación. Solo se retira del componente de búsqueda el método de iniciales que deja de usarse. Se preservan servicios, modelos, RxJS, rutas, importes exactos, semántica de estados y pruebas existentes. Riesgos: anchura de la serif con nombres largos, reorganización de los grupos en móvil y visibilidad del foco al cambiar la cabecera a fondo claro.
+
+Se ejecutarán desde la raíz build y tests Angular; después se revisará el flujo con FastAPI real sobre una base aislada y datos explícitamente ficticios. La evidencia final se añadirá tras esas comprobaciones. No se modificará backend, contratos, decisiones ni dependencias; no se hará commit, push o PR.
+
+### Resultado verificado — cierre 2026-11-15
+
+Se aplicó el concepto aprobado. Cabecera clara y marca serif, búsqueda fuera del panel de resultados, filas de 76 px mínimos en escritorio, identidad con nombre destacado y plan sobre una superficie secundaria. El historial comparte una superficie continua y agrupa consumos y desglose en una retícula; conserva todas las interpolaciones del resultado original, incluyendo tasa y contexto desplegable.
+
+La revisión en tablet detectó que las filas perdían su señal visible de navegación: se mantuvo la flecha aunque se oculte su texto a ese ancho. También se dio ajuste de palabra a los mensajes para soportar una búsqueda válida de 200 caracteres sin espacios. Se verificaron nombres de 200 caracteres, planes de 100, identificadores de 32, correo de 122 y consumos de 1000000, sin desbordamiento horizontal en las comprobaciones realizadas.
+
+Verificación real en navegador integrado: escritorio 1440×1000, tablet 768×1024 y móvil 375×812 / 320×700. Se probaron búsqueda Unicode y fiscal, carga, directorio e historial vacíos, ausencia de coincidencias, paginación de ambas colecciones, vuelta conservando término/offset, cliente inexistente, teclado y contexto desplegable. Detener/reiniciar FastAPI permitió comprobar el error real de red y su recuperación con foco en el encabezado de resultados.
+
+Los pares base calculados tienen estos contrastes: tinta/papel 11.38:1, secundario/papel 5.58:1, secundario/fondo 5.03:1, acción/papel 7.17:1 y error/papel 6.77:1. Se conservan etiquetas, regiones y anuncios de estado; no se hizo una auditoría completa de accesibilidad ni se forzó la preferencia del sistema de movimiento reducido. El CSS contiene la excepción correspondiente. No se comprobó el aspecto en otros sistemas operativos o navegadores.
+
+Build de producción correcto, sin avisos del compilador: 277.43 kB iniciales y transferencia estimada 75.44 kB. Suite Angular: 36 pruebas en 6 archivos, todas superadas, sin eliminar, modificar o añadir tests para este cambio de presentación. Evidencia detallada en la entrada 13 de la bitácora.
+
+Las cuatro capturas reales del rediseño están en `frontend/__screenshots__/prompt29b-*.jpg`, excluidas de Git; se conservaron las capturas anteriores. La base temporal de 23 clientes y 21 simulaciones ficticios se eliminó y ambos servidores se detuvieron tras la revisión. No se incorporaron fixtures al producto.
+
+Para el simulador futuro quedan disponibles los tokens de tipografía, color, espacio, radios y foco, las utilidades `.surface`, `.button` y `.section-heading`, y los componentes compartidos de estado/paginación. Los futuros controles podrán usar esos mismos tokens sin añadir una biblioteca visual. Esta entrega no implementa el simulador ni cambia sus reglas. La revisión humana de la implementación, el commit y el PR siguen pendientes.

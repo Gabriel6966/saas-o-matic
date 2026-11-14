@@ -2,7 +2,7 @@
 <section class="history" aria-labelledby="history-title" [attr.aria-busy]="view.status === 'loading'">
   <header class="history-heading">
     <div><h2 id="history-title" tabindex="-1">Historial de simulaciones</h2><p>Resultados originales guardados en EUR.</p></div>
-    @if (view.status === 'success') { <span class="count-label">{{ view.data.total_count }} {{ view.data.total_count === 1 ? 'simulación' : 'simulaciones' }}</span> }
+    @if (view.status === 'success') { <span class="count-label" aria-live="polite"><strong>{{ view.data.total_count }}</strong> {{ view.data.total_count === 1 ? 'simulación' : 'simulaciones' }}</span> }
   </header>
   @switch (view.status) {
     @case ('loading') {
@@ -17,20 +17,22 @@
         <ol class="simulation-list">
           @for (simulation of view.data.items; track simulation.id) {
             <li>
-              <article class="surface simulation-card" [attr.aria-labelledby]="'simulation-' + simulation.id">
+              <article class="simulation-card" [attr.aria-labelledby]="'simulation-' + simulation.id">
                 <header class="simulation-heading">
                   <div><h3 [id]="'simulation-' + simulation.id">Simulación #{{ simulation.id }}</h3><time [attr.datetime]="simulation.created_at">{{ simulation.created_at | utcDate }} UTC</time></div>
                   <div class="simulation-total"><span>Total mensual</span><strong>{{ simulation.total_amount }} <small>{{ simulation.currency }}</small></strong></div>
                 </header>
-                <dl class="usage-fields">
-                  <div><dt>Usuarios activos</dt><dd>{{ simulation.active_users }}</dd></div>
-                  <div><dt>Almacenamiento</dt><dd>{{ simulation.storage_gb }} <span>GB</span></dd></div>
-                  <div><dt>Llamadas API</dt><dd>{{ simulation.api_calls }}</dd></div>
-                </dl>
-                <dl class="amount-fields">
-                  <div><dt>Base</dt><dd>{{ simulation.base_amount }} EUR</dd></div>
-                  <div><dt>Impuesto</dt><dd>{{ simulation.tax_amount }} EUR</dd></div>
-                </dl>
+                <div class="simulation-breakdown">
+                  <dl class="usage-fields">
+                    <div><dt>Usuarios activos</dt><dd>{{ simulation.active_users }}</dd></div>
+                    <div><dt>Almacenamiento</dt><dd>{{ simulation.storage_gb }} <span>GB</span></dd></div>
+                    <div><dt>Llamadas API</dt><dd>{{ simulation.api_calls }}</dd></div>
+                  </dl>
+                  <dl class="amount-fields">
+                    <div><dt>Base</dt><dd>{{ simulation.base_amount }} EUR</dd></div>
+                    <div><dt>Impuesto</dt><dd>{{ simulation.tax_amount }} EUR</dd></div>
+                  </dl>
+                </div>
                 <details class="snapshot">
                   <summary>Contexto del cálculo</summary>
                   <dl>
