@@ -1,68 +1,73 @@
+@let view = state();
 <header class="page-heading">
-  <div>
-    <h1 id="page-title" tabindex="-1">Clientes</h1>
-    <p class="page-intro">Encuentra una empresa y consulta sus simulaciones guardadas.</p>
-  </div>
+  <h1 id="page-title" tabindex="-1">Clientes</h1>
+  <p class="page-intro">Encuentra una empresa y consulta sus simulaciones guardadas.</p>
 </header>
 
-@let view = state();
-<section class="surface directory" aria-labelledby="results-title" [attr.aria-busy]="view.status === 'loading'">
-  <form class="search-area" role="search" (submit)="$event.preventDefault()">
-    <label for="customer-search">Buscar clientes</label>
-    <div class="search-controls">
-      <div class="search-input-wrap">
-        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>
-        <input id="customer-search" type="search" name="q" [formControl]="search" autocomplete="off"
-          placeholder="Empresa o identificador fiscal" aria-describedby="search-help"
-          [attr.aria-invalid]="search.invalid" [attr.aria-errormessage]="search.invalid ? 'search-error' : null">
-      </div>
-      <button class="button button--secondary" type="button" (click)="clearSearch()" [disabled]="!search.value">Limpiar</button>
+<form class="search-area" role="search" (submit)="$event.preventDefault()">
+  <label for="customer-search">Buscar clientes</label>
+  <div class="search-controls">
+    <div class="search-input-wrap">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>
+      <input id="customer-search" type="search" name="q" [formControl]="search" autocomplete="off"
+        placeholder="Empresa o identificador fiscal" aria-describedby="search-help"
+        [attr.aria-invalid]="search.invalid" [attr.aria-errormessage]="search.invalid ? 'search-error' : null">
     </div>
-    <p id="search-help">Escribe parte del nombre o el identificador fiscal completo. Los resultados se actualizan al escribir.</p>
-    @if (view.status === 'invalid') { <p class="field-error" id="search-error" role="alert">{{ view.message }}</p> }
-  </form>
+    <button class="button button--secondary" type="button" (click)="clearSearch()" [disabled]="!search.value">Limpiar</button>
+  </div>
+  <p id="search-help">Escribe parte del nombre o el identificador fiscal completo.</p>
+  @if (view.status === 'invalid') { <p class="field-error" id="search-error" role="alert">{{ view.message }}</p> }
+</form>
 
+<section class="directory" aria-labelledby="results-title" [attr.aria-busy]="view.status === 'loading'">
   <div class="section-heading">
     <h2 id="results-title" tabindex="-1">{{ view.q ? 'Resultados de búsqueda' : 'Directorio de clientes' }}</h2>
     @if (view.status === 'success') {
-      <span class="count-label" aria-live="polite">{{ view.data.total_count }} {{ view.data.total_count === 1 ? 'cliente' : 'clientes' }}</span>
+      <span class="count-label" aria-live="polite"><strong>{{ view.data.total_count }}</strong> {{ view.data.total_count === 1 ? 'cliente' : 'clientes' }}</span>
     }
   </div>
 
-  @switch (view.status) {
-    @case ('loading') {
-      <app-status-panel kind="loading" title="Buscando clientes" message="Estamos consultando el directorio." />
-    }
-    @case ('error') {
-      <app-status-panel kind="error" title="No se pudo cargar el directorio" [message]="view.error.message"
-        [details]="view.error.details" actionLabel="Reintentar" (action)="retry()" />
-    }
-    @case ('success') {
-      @if (view.data.items.length) {
-        <div class="list-columns" aria-hidden="true"><span>Empresa</span><span>Identificador fiscal</span><span>País</span><span></span></div>
-        <ul class="customer-list">
-          @for (customer of view.data.items; track customer.id) {
-            <li>
-              <a class="customer-row" [routerLink]="['/customers', customer.id]"
-                [queryParams]="{q: view.q || null, offset: view.data.offset || null}">
-                <span class="company-cell"><span class="company-initial" aria-hidden="true">{{ initial(customer.company_name) }}</span><strong>{{ customer.company_name }}</strong></span>
-                <span class="tax-cell"><span class="mobile-label">Identificador fiscal</span>{{ customer.tax_identifier }}</span>
-                <span class="country-cell"><span class="country-code">{{ customer.country_code }}</span>{{ customer.country_code | countryName }}</span>
-                <span class="open-customer">Ver ficha <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></span>
-              </a>
-            </li>
+  @if (view.status !== 'invalid') {
+    <div class="results-surface">
+      @switch (view.status) {
+        @case ('loading') {
+          <app-status-panel kind="loading" title="Buscando clientes" message="Estamos consultando el directorio." />
+        }
+        @case ('error') {
+          <app-status-panel kind="error" title="No se pudo cargar el directorio" [message]="view.error.message"
+            [details]="view.error.details" actionLabel="Reintentar" (action)="retry()" />
+        }
+        @case ('success') {
+          @if (view.data.items.length) {
+            <div class="list-columns" aria-hidden="true"><span>Empresa</span><span>Identificador fiscal</span><span>País</span><span></span></div>
+            <ul class="customer-list">
+              @for (customer of view.data.items; track customer.id) {
+                <li>
+                  <a class="customer-row" [routerLink]="['/customers', customer.id]"
+                    [queryParams]="{q: view.q || null, offset: view.data.offset || null}">
+                    <span class="company-cell"><strong>{{ customer.company_name }}</strong></span>
+                    <span class="tax-cell"><span class="mobile-label">Identificador fiscal</span>{{ customer.tax_identifier }}</span>
+                    <span class="country-cell"><span class="country-code">{{ customer.country_code }}</span>{{ customer.country_code | countryName }}</span>
+                    <span class="open-customer">Ver ficha <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></span>
+                  </a>
+                </li>
+              }
+            </ul>
+          } @else if (view.data.total_count > 0) {
+            <app-status-panel title="Esta página está vacía" message="El directorio puede haber cambiado. Vuelve al inicio para consultar los resultados." />
+          } @else if (view.q) {
+            <app-status-panel title="No hay coincidencias" [message]="'No encontramos clientes para «' + view.q + '». Prueba otro nombre o el identificador fiscal completo.'"
+              actionLabel="Limpiar búsqueda" (action)="clearSearch()" />
+          } @else {
+            <app-status-panel title="Todavía no hay clientes" message="Los clientes registrados aparecerán aquí con su empresa, identificador fiscal y país." />
           }
-        </ul>
-      } @else if (view.data.total_count > 0) {
-        <app-status-panel title="Esta página está vacía" message="El directorio puede haber cambiado. Vuelve al inicio para consultar los resultados." />
-      } @else if (view.q) {
-        <app-status-panel title="No hay coincidencias" [message]="'No encontramos clientes para «' + view.q + '». Prueba otro nombre o el identificador fiscal completo.'"
-          actionLabel="Limpiar búsqueda" (action)="clearSearch()" />
-      } @else {
-        <app-status-panel title="Todavía no hay clientes" message="Los clientes registrados aparecerán aquí con su empresa, identificador fiscal y país." />
+        }
       }
-      <app-pagination label="Paginación de clientes" [offset]="view.data.offset" [limit]="view.data.limit"
-        [total]="view.data.total_count" [itemCount]="view.data.items.length" (pageChange)="goToOffset($event)" />
-    }
+    </div>
+  }
+
+  @if (view.status === 'success') {
+    <app-pagination label="Paginación de clientes" [offset]="view.data.offset" [limit]="view.data.limit"
+      [total]="view.data.total_count" [itemCount]="view.data.items.length" (pageChange)="goToOffset($event)" />
   }
 </section>

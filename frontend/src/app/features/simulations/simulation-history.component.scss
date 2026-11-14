@@ -1,33 +1,48 @@
 :host { display: block; min-width: 0; }
-.history-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
-.history-heading p { margin-top: 8px; color: var(--muted); font-size: 14px; }
-.simulation-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; }
-.simulation-card { overflow: clip; }
-.simulation-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 28px; background: var(--accent-wash); border-bottom: 1px solid var(--line); }
-.simulation-heading h3 { font-size: 16px; }
-time { display: block; margin-top: 8px; color: var(--muted); font-size: 13px; }
-.simulation-total { text-align: right; flex-shrink: 0; }
-.simulation-total > span { display: block; font-size: 13px; color: var(--muted); }
-.simulation-total strong { display: block; font-size: 28px; font-weight: 650; letter-spacing: -.6px; font-variant-numeric: tabular-nums; color: var(--accent); }
-.simulation-total small { font-size: 14px; letter-spacing: 0; }
-.usage-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; padding: 24px 28px; }
-.usage-fields dd { margin-top: 6px; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.usage-fields dd span { font-size: 14px; font-weight: 400; }
-.amount-fields { display: flex; flex-wrap: wrap; gap: 24px 48px; padding: 0 28px 24px; }
-.amount-fields dd { margin-top: 4px; font-variant-numeric: tabular-nums; font-weight: 600; }
-.snapshot { border-top: 1px solid var(--line); padding: 0 28px; font-size: 14px; }
-summary { min-height: 52px; padding: 16px 0; color: var(--accent); font-weight: 600; cursor: pointer; }
-.snapshot dl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr); gap: 20px; padding: 4px 0 16px; }
-.snapshot dt { font-size: 13px; }
-.snapshot dd { margin-top: 4px; }
-.snapshot p { color: var(--muted); font-size: 13px; padding-bottom: 20px; }
-.history-pagination { display: block; margin-top: 20px; }
+.history-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-5); }
+.history-heading h2 { font-family: var(--font-heading); font-size: 28px; font-weight: 400; letter-spacing: -.6px; }
+.history-heading p { margin-top: var(--space-2); color: var(--muted); font-size: 13px; }
+.simulation-list { list-style: none; margin: 0; padding: 0; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-card); overflow: clip; }
+.simulation-list > li + li { border-top: 1px solid var(--line); }
+.simulation-card { padding: var(--space-6) var(--space-8) var(--space-4); }
+.simulation-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); }
+.simulation-heading h3 { font-size: 14px; font-weight: 600; }
+time { display: block; margin-top: 6px; color: var(--muted); font-size: 13px; }
+.simulation-total { text-align: right; min-width: 0; }
+.simulation-total > span { display: block; font-size: 12px; color: var(--muted); }
+.simulation-total strong { display: block; font-size: 32px; line-height: 1.3; font-weight: 600; letter-spacing: -.8px; font-variant-numeric: tabular-nums; color: var(--accent); overflow-wrap: anywhere; }
+.simulation-total small { font-size: 13px; font-weight: 400; letter-spacing: 0; }
+.simulation-breakdown { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--space-8); padding: var(--space-5) 0; }
+.usage-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
+.usage-fields dd { margin-top: 6px; font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.usage-fields dd span { font-size: 13px; font-weight: 400; }
+.amount-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); padding-left: var(--space-6); border-left: 1px solid var(--line); }
+.amount-fields dd { margin-top: 6px; font-variant-numeric: tabular-nums; font-size: 15px; }
+.snapshot { border-top: 1px solid var(--line); font-size: 14px; }
+summary { min-height: 44px; padding: var(--space-3) 0; color: var(--accent); font-size: 13px; cursor: pointer; }
+summary:hover { text-decoration: underline; text-underline-offset: 4px; }
+.snapshot dl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr); gap: var(--space-5); padding: var(--space-2) 0 var(--space-4); }
+.snapshot dt { font-size: 12px; }
+.snapshot dd { margin-top: var(--space-1); }
+.snapshot p { color: var(--muted); font-size: 12px; padding-bottom: var(--space-3); max-width: 80ch; }
+.history-pagination { display: block; }
+@media (max-width: 800px) {
+  .simulation-breakdown { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+  .amount-fields { border-left: 0; border-top: 1px solid var(--line); padding: var(--space-4) 0 0; }
+}
 @media (max-width: 600px) {
-  .history-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
-  .simulation-heading { flex-direction: column; align-items: stretch; padding: 20px; gap: 16px; }
-  .simulation-total { text-align: left; padding-top: 16px; border-top: 1px solid var(--line); }
-  .usage-fields { padding: 20px; grid-template-columns: 1fr 1fr; gap: 20px 16px; }
-  .amount-fields { padding: 0 20px 20px; gap: 24px; }
-  .snapshot { padding: 0 20px; }
-  .snapshot dl { grid-template-columns: 1fr; gap: 16px; }
+  .history-heading { align-items: flex-start; flex-direction: column; gap: var(--space-2); }
+  .history-heading h2 { font-size: 26px; }
+  .simulation-card { padding: var(--space-5) var(--space-5) var(--space-3); }
+  .simulation-heading { flex-direction: column; align-items: stretch; gap: var(--space-4); }
+  .simulation-total { text-align: left; }
+  .simulation-total strong { font-size: 30px; }
+  .simulation-breakdown { padding-top: var(--space-4); }
+  .usage-fields { gap: var(--space-3); }
+  .usage-fields dt { font-size: 12px; }
+  .snapshot dl { grid-template-columns: 1fr; gap: var(--space-4); }
+}
+@media (max-width: 360px) {
+  .simulation-card { padding-left: var(--space-4); padding-right: var(--space-4); }
+  .usage-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
