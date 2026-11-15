@@ -1,0 +1,17 @@
+:host { display: block; }
+.currency-display { border-top: 1px solid var(--line); padding: var(--space-8); min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-10); }
+.currency-controls { max-width: 360px; }
+label { display: block; font-size: 14px; font-weight: 600; margin-bottom: var(--space-2); }
+.field-control { font-size: 14px; }
+p, .attribution { font-size: 12px; color: var(--muted); margin-top: var(--space-3); overflow-wrap: anywhere; }
+h3 { font-size: 15px; }
+dl { margin-top: var(--space-3); display: grid; gap: var(--space-2); }
+dl > div { display: flex; justify-content: space-between; gap: var(--space-3); font-size: 13px; }
+dd { text-align: right; font-variant-numeric: tabular-nums; }
+.converted-total dd { font-size: 22px; font-weight: 600; }
+.converted-total { align-items: baseline; }
+.attribution { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); }
+.button { margin-top: var(--space-3); }
+.input-error { color: var(--error); }
+@media (max-width: 800px) { .currency-display { grid-template-columns: 1fr; gap: var(--space-5); padding: var(--space-6); } }
+@media (max-width: 600px) { .currency-display { padding: var(--space-5); } }

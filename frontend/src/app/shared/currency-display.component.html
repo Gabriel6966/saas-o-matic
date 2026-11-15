@@ -1,0 +1,94 @@
+@let view = state();
+<section class="currency-display" aria-label="Conversión orientativa">
+  <div class="currency-controls">
+    <label for="display-currency">Moneda de visualización</label>
+    <select
+      id="display-currency"
+      class="field-control"
+      [formControl]="currency"
+      aria-describedby="currency-help currency-status"
+    >
+      <option value="EUR">EUR · Euro</option>
+      <option value="USD">USD · Dólar estadounidense</option>
+      <option value="GBP">GBP · Libra esterlina</option>
+    </select>
+    <p id="currency-help">
+      Conversión orientativa. El guardado y el historial conservan EUR.
+    </p>
+    <a
+      class="attribution"
+      href="https://www.exchangerate-api.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      >Rates By Exchange Rate API</a
+    >
+  </div>
+  <div
+    id="currency-status"
+    aria-live="polite"
+    [attr.aria-busy]="view.status === 'loading'"
+  >
+    @switch (view.status) {
+      @case ("eur") {
+        <p>Importes originales en EUR. No se necesitan tipos de cambio.</p>
+      }
+      @case ("loading") {
+        <p>
+          Consultando el cambio a {{ currency.value }}… Se mantienen los
+          importes EUR.
+        </p>
+      }
+      @case ("error") {
+        <p class="input-error">{{ view.message }}</p>
+        <button
+          class="button button--secondary"
+          type="button"
+          (click)="retry()"
+        >
+          Reintentar divisas
+        </button>
+      }
+      @case ("ready") {
+        @if (converted(); as amounts) {
+          <h3>Equivalencia en {{ view.currency }}</h3>
+          <dl>
+            <div class="converted-total">
+              <dt>Total orientativo</dt>
+              <dd>{{ amounts.total }} {{ view.currency }}</dd>
+            </div>
+            <div>
+              <dt>Base orientativa</dt>
+              <dd>{{ amounts.base }} {{ view.currency }}</dd>
+            </div>
+            <div>
+              <dt>Impuesto orientativo</dt>
+              <dd>{{ amounts.tax }} {{ view.currency }}</dd>
+            </div>
+          </dl>
+          <p>
+            El total se convierte desde el total EUR; puede diferir de la suma
+            del desglose redondeado.
+          </p>
+        } @else {
+          <p>
+            Elige un consumo válido y espera al cálculo para ver su
+            equivalencia.
+          </p>
+        }
+        <p>1 EUR = {{ view.data.rates[view.currency] }} {{ view.currency }}.</p>
+        <p>
+          Tasa del
+          <time [attr.datetime]="date(view.data.lastUpdate)"
+            >{{ date(view.data.lastUpdate) | utcDate }} UTC</time
+          >.
+        </p>
+        <p>
+          Próxima actualización:
+          <time [attr.datetime]="date(view.data.nextUpdate)"
+            >{{ date(view.data.nextUpdate) | utcDate }} UTC</time
+          >. Se reutiliza esta tasa hasta entonces.
+        </p>
+      }
+    }
+  </div>
+</section>

@@ -8,6 +8,7 @@ import { Simulation, SimulationInput, SimulationPreview } from '../../core/api/m
 import { SimulationsApiService } from '../../core/api/simulations-api.service';
 import { CountryNamePipe, UtcDatePipe } from '../../shared/display.pipes';
 import { integerValidator, integerValue, localFieldError } from '../../shared/form-validation';
+import { CurrencyDisplayComponent } from '../../shared/currency-display.component';
 
 type Field = 'active_users' | 'storage_gb' | 'api_calls';
 type Values = Record<Field, string>;
@@ -28,7 +29,7 @@ const initialValues = (): Values => ({ active_users: '0', storage_gb: '0', api_c
 
 @Component({
   selector: 'app-simulation-editor',
-  imports: [ReactiveFormsModule, CountryNamePipe, UtcDatePipe],
+  imports: [ReactiveFormsModule, CountryNamePipe, UtcDatePipe, CurrencyDisplayComponent],
   templateUrl: './simulation-editor.component.html',
   styleUrl: './simulation-editor.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

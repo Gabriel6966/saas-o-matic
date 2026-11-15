@@ -4,6 +4,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { simulation } from '../../../testing/fixtures';
 import { API_BASE_URL } from '../../core/api/api-base-url';
 import { SimulationEditorComponent } from './simulation-editor.component';
+import { By } from '@angular/platform-browser';
+import { CurrencyDisplayComponent } from '../../shared/currency-display.component';
+import { EXCHANGE_URL } from '../../core/currency/exchange-rates.service';
+import { exchangeFixture } from '../../../testing/exchange-fixture';
 
 describe('Simulador reactivo', () => {
   let fixture: ComponentFixture<SimulationEditorComponent>;
@@ -43,6 +47,22 @@ describe('Simulador reactivo', () => {
     refresh();
     expect(root().textContent).toContain('0.00 EUR');
     expect(component.canSave()).toBe(true);
+  });
+
+  it('guardar mientras se visualiza USD envía cuatro entradas y conserva EUR original e histórico', async () => {
+    await ready();
+    const display = fixture.debugElement.query(By.directive(CurrencyDisplayComponent)).componentInstance as CurrencyDisplayComponent;
+    display.currency.setValue('USD'); http.expectOne(EXCHANGE_URL).flush(exchangeFixture()); refresh();
+    expect(root().textContent).toContain('207.40 USD');
+    expect(root().querySelector('.quote-total')?.textContent).toContain('168.00 EUR');
+    component.save();
+    const req = http.expectOne('/api/simulations'); expect(req.request.body).toEqual(input);
+    req.flush({ ...simulation, id: 103, country_code: 'ES', tax_rate: '0.21', tax_amount: '29.40', total_amount: '169.40' }, { status: 201, statusText: 'Created' }); refresh();
+    expect(root().querySelector('.quote-total')?.textContent).toContain('169.40 EUR');
+    expect(root().textContent).toContain('209.12 USD');
+    expect(root().textContent).toContain('36.29 USD');
+    expect(component.receipt()?.data.currency).toBe('EUR');
+    http.expectNone(() => true);
   });
 
   it('debounce de 300 ms agrupa cambios rápidos sin llamadas tempranas', async () => {
