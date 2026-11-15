@@ -105,6 +105,7 @@
       <button class="button save-button" type="button" (click)="save()" [disabled]="!canSave()">{{ saving() ? 'Guardando simulación…' : 'Guardar simulación' }}</button>
       <p class="field-help">El guardado vuelve a calcular en el servidor. No se guarda mientras editas.</p>
     </div>
+    <app-currency-display [quote]="view.status === 'ready' || view.status === 'saved' ? view.data : null" />
   </div>
   <p class="policy-note">Política comercial simplificada de la prueba; no es una estimación fiscal oficial. Importes originales en EUR.</p>
 </section>

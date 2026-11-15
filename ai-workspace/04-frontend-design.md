@@ -176,3 +176,9 @@ Build de producción correcto, sin avisos del compilador: 277.43 kB iniciales y 
 Las cuatro capturas reales del rediseño están en `frontend/__screenshots__/prompt29b-*.jpg`, excluidas de Git; se conservaron las capturas anteriores. La base temporal de 23 clientes y 21 simulaciones ficticios se eliminó y ambos servidores se detuvieron tras la revisión. No se incorporaron fixtures al producto.
 
 Para el simulador futuro quedan disponibles los tokens de tipografía, color, espacio, radios y foco, las utilidades `.surface`, `.button` y `.section-heading`, y los componentes compartidos de estado/paginación. Los futuros controles podrán usar esos mismos tokens sin añadir una biblioteca visual. Esta entrega no implementa el simulador ni cambia sus reglas. La revisión humana de la implementación, el commit y el PR siguen pendientes.
+
+## Extensión del Prompt #30 — 2026-11-15
+
+El alta y el simulador extienden Editorial B2B premium sin cambiar su dirección. Reutilizan los tokens aprobados y comparten etiquetas, ayudas, campos, errores y acciones. El alta separa datos y explicación fiscal; el simulador coloca consumo y resultado en dos columnas, apiladas en móvil. La confirmación de guardado muestra el resultado persistido y lleva el foco a un contenedor estable; el historial mantiene su presentación y snapshots.
+
+Las entradas de consumo conservan texto hasta validar enteros estrictos. El deslizador cubre 0–1000; el campo permite 1000000 y explica que moverlo volverá a su rango visual. Al editar desaparece el precio previo antes del debounce. Se verificaron escritorio, anchura de tablet, 375/320 px, teclado y textos largos contra FastAPI aislado; evidencia y límites en la entrada 14 de la bitácora. No se añaden fuentes, paquetes, tarifas ni divisas.

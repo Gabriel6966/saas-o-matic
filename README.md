@@ -2,7 +2,7 @@
 
 Prueba técnica Full-Stack AI-Augmented — herramienta interna de simulación de suscripciones SaaS.
 
-> **Estado actual:** motor de facturación y seis endpoints REST con SQLite implementados. Angular permite buscar, paginar y registrar clientes, abrir su ficha, previsualizar consumos en EUR y guardar simulaciones con su historial original. La conversión de divisas queda para el Prompt #31.
+> **Estado actual:** motor de facturación y seis endpoints REST con SQLite implementados. Angular permite buscar, paginar y registrar clientes, previsualizar y guardar simulaciones en EUR, consultar su historial original y visualizar equivalencias orientativas en USD/GBP mediante ExchangeRate-API.
 
 ## Stack aprobado
 - Frontend: Angular + TypeScript
@@ -77,7 +77,7 @@ Flujo disponible:
 - Cada edición retira inmediatamente la preview anterior y cancela la consulta vigente, también si la entrada es inválida. Se espera 300 ms antes de consultar el nuevo cálculo. Guardar exige una preview vigente; el resultado de un 201 sustituye al anterior y el historial vuelve a su primera página. No hay reintentos automáticos de escrituras.
 - Estados de carga, directorio vacío, búsqueda sin coincidencias, cliente inexistente, historial vacío, validación, conflicto de alta, país sin política fiscal, fallo HTTP/red y espera agotada a los 10 segundos. El fallo de historial conserva la ficha y el simulador.
 
-No se incluyen datos de demostración en la aplicación. En una base nueva el directorio estará vacío; usa «Nuevo cliente» o los ejemplos ficticios de la API que siguen. No se consultan servicios de divisas.
+No se incluyen datos de demostración en la aplicación. En una base nueva el directorio estará vacío; usa «Nuevo cliente» o los ejemplos ficticios de la API que siguen. La consulta de divisas solo se inicia al elegir USD o GBP.
 
 Recorrido comprobado con ambos servidores locales arrancados:
 
@@ -87,6 +87,16 @@ Recorrido comprobado con ambos servidores locales arrancados:
 
 Si no se puede confirmar un guardado, puede haberse registrado aunque no llegue la respuesta. **Revisar historial** solo consulta; no repite el POST. Tras revisarlo, **Volver a calcular** permite preparar otra operación que requerirá de nuevo pulsar Guardar. Editar por sí solo no desbloquea un guardado incierto.
 
+### Visualización en EUR, USD y GBP
+
+En la franja inferior del simulador, **Moneda de visualización** permite elegir EUR, USD o GBP. EUR es el valor inicial y funciona sin consultar al proveedor. USD/GBP muestran una equivalencia del total, base e impuesto, junto con la tasa, su fecha UTC, próxima actualización y el enlace **Rates By Exchange Rate API**. El importe original EUR permanece visible; el guardado, la confirmación y el historial conservan el resultado del backend en EUR. Cambiar de moneda no guarda ni recalcula tarifas o impuestos.
+
+Se consulta directamente `https://open.er-api.com/v6/latest/EUR`, sin claves, credenciales ni datos del cliente. Se validan resultado, base, tasas positivas finitas, EUR igual a 1 y fechas coherentes y vigentes, dentro de una ventana máxima de 48 horas para este proveedor diario. El servicio comparte una petición en curso y una caché en memoria hasta `time_next_update_unix`. Slider, cambios de moneda y navegación interna reutilizan esa caché; recargar la página la pierde. No se usa localStorage. Al vencer la tasa se retira la equivalencia mientras se consulta otra; un fallo no reutiliza tasas vencidas y ofrece **Reintentar divisas**, manteniendo EUR. La espera se limita a diez segundos; un 429 se explica sin reintentos automáticos.
+
+Las cadenas monetarias EUR se convierten mediante aritmética decimal de enteros `BigInt`, con redondeo `ROUND_HALF_UP` a dos decimales solo para presentación. Nunca pasan por `Number`. Las tasas numéricas JSON se fijan como texto decimal antes de multiplicar; su precisión queda limitada a la que se recibe del proveedor y del parser JSON. Base, impuesto y total se convierten por separado: la suma del desglose redondeado puede diferir del total convertido. Son referencias orientativas, no tipos garantizados para transacciones. [Documentación del proveedor](https://www.exchangerate-api.com/docs/free), [condiciones y límites de exactitud](https://www.exchangerate-api.com/terms).
+
+Consulta real comprobada desde `http://localhost:4200` el 15/11/2026: HTTP 200 y respuesta accesible por CORS. Con la tasa efectiva del 15/11/2026 a las 00:02:32 UTC, el total ficticio `169.40 EUR` se mostró como `186.98 USD` (`1.103776`) y `141.42 GBP` (`0.834849`). Son valores observados en esa ejecución, no constantes de la aplicación. Se comprobó guardar desde USD y recuperar el original EUR. Escritorio 1440×1000 y móvil 375×812 / 320×700 sin desbordamiento en las mediciones realizadas. Fallos externos, timeout, 429 y caducidad se verificaron con respuestas simuladas en tests, sin provocar esos fallos en el proveedor real.
+
 Build de producción y pruebas Angular, también desde la raíz:
 
 ```powershell
@@ -95,6 +105,8 @@ npm --prefix frontend test
 ```
 
 El compilado está en `frontend/dist/saas-o-matic/browser`. Los tests usan el runner oficial Angular/Vitest con jsdom y `HttpTestingController`; no requieren arrancar FastAPI.
+
+En el Prompt #31 pasaron el build de producción sin avisos y **118 pruebas en 12 archivos** (incluidas las 73 anteriores). No se añadieron dependencias ni se modificó el backend. Verificaciones, capturas locales ignoradas e incidencias en la entrada 15 de la bitácora.
 
 La instalación desde el lockfile se verificó en la entrega inicial. En el Prompt #30 se ejecutaron build de producción y 73 pruebas Angular en 9 archivos, todas correctas. Se comprobó alta → ficha → preview → guardado → historial con FastAPI real sobre SQLite aislado y datos ficticios, escritorio 1440 × 1000, móvil 375 × 812 / 320 × 700 y anchura de tablet 768 × 1024. Se revisaron teclado, foco, límites, validación fiscal, conflicto, paginación y caída/recuperación de la API. No equivale a una auditoría de accesibilidad ni a una instalación en otro equipo. Comandos, resultados e incidencias se registran en la [bitácora](ai-workspace/05-ai-development-log.md).
 

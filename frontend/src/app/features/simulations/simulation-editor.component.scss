@@ -3,6 +3,7 @@
 .simulator-heading h2 { font-family: var(--font-heading); font-size: 30px; font-weight: 400; letter-spacing: -.6px; }
 .simulator-heading p { color: var(--muted); font-size: 14px; margin-top: var(--space-2); }
 .simulator-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); overflow: hidden; }
+app-currency-display { grid-column: 1 / -1; }
 .simulation-form, .quote-panel { padding: var(--space-8); min-width: 0; }
 .simulation-form .form-fields { margin-top: 0; }
 .users-number { max-width: 220px; font-size: 26px; font-variant-numeric: tabular-nums; }
