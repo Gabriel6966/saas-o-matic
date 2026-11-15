@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, combineLatest, concat, distinctUntilChanged, map, of, startWith, Subject, switchMap } from 'rxjs';
 import { toApiError } from '../../core/api/api-error';
 import { CustomersApiService } from '../../core/api/customers-api.service';
@@ -10,12 +10,13 @@ import { parseCustomerId, parseOffset } from '../../core/query';
 import { CountryNamePipe } from '../../shared/display.pipes';
 import { StatusPanelComponent } from '../../shared/status-panel.component';
 import { SimulationHistoryComponent } from '../simulations/simulation-history.component';
+import { SimulationEditorComponent } from '../simulations/simulation-editor.component';
 
 type DetailView = LoadState<Customer> | { readonly status: 'invalid' };
 
 @Component({
   selector: 'app-customer-detail',
-  imports: [RouterLink, CountryNamePipe, StatusPanelComponent, SimulationHistoryComponent],
+  imports: [RouterLink, CountryNamePipe, StatusPanelComponent, SimulationHistoryComponent, SimulationEditorComponent],
   templateUrl: './customer-detail.component.html',
   styleUrl: './customer-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,6 +26,8 @@ export class CustomerDetailComponent {
   private readonly api = inject(CustomersApiService);
   private readonly document = inject(DOCUMENT);
   private readonly retryRequest = new Subject<void>();
+  readonly historyRefresh = signal(0);
+  readonly createdCustomerId: unknown = inject(Router).currentNavigation()?.extras.state?.['createdCustomerId'];
 
   readonly backQuery = toSignal(this.route.queryParamMap.pipe(map((params) => ({
     q: params.get('q'), offset: parseOffset(params.get('offset')) || null,
@@ -44,5 +47,10 @@ export class CustomerDetailComponent {
   retry(): void {
     this.document.getElementById('page-title')?.focus();
     this.retryRequest.next();
+  }
+
+  refreshHistory(focus = false): void {
+    this.historyRefresh.update((value) => value + 1);
+    if (focus) this.document.getElementById('history-title')?.focus();
   }
 }

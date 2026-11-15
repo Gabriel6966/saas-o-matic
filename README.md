@@ -2,7 +2,7 @@
 
 Prueba técnica Full-Stack AI-Augmented — herramienta interna de simulación de suscripciones SaaS.
 
-> **Estado actual:** motor de facturación y seis endpoints REST con SQLite implementados. Angular permite buscar y paginar clientes, abrir su ficha responsive y consultar el historial original en EUR. Los formularios de alta y simulación, preview interactivo, guardado desde la interfaz y conversión de divisas quedan para las siguientes fases.
+> **Estado actual:** motor de facturación y seis endpoints REST con SQLite implementados. Angular permite buscar, paginar y registrar clientes, abrir su ficha, previsualizar consumos en EUR y guardar simulaciones con su historial original. La conversión de divisas queda para el Prompt #31.
 
 ## Stack aprobado
 - Frontend: Angular + TypeScript
@@ -71,10 +71,21 @@ La URL del backend se configura en `frontend/public/config.js`, mediante `apiBas
 Flujo disponible:
 
 - `/customers`: lista real, búsqueda parcial por empresa o exacta por identificador completo, debounce de 300 ms, cancelación inmediata de consultas antiguas y paginación de 20 elementos. La URL conserva `q` y `offset` para el regreso y la navegación del navegador.
-- `/customers/:customer_id`: tarjetas de empresa y plan actual, con correo, país e identificador; historial paginado de solo lectura con consumos, base, impuesto, total EUR, tasa, país y plan originales. Las fechas indican UTC y las cadenas decimales del servidor se muestran sin pasar por `Number`.
-- Estados de carga, directorio vacío, búsqueda sin coincidencias, cliente inexistente, historial vacío, fallo HTTP/red y espera agotada a los 10 segundos, con reintentos. El fallo de historial conserva la ficha.
+- `/customers/new`: alta con empresa, país ES/FR/DE, identificador fiscal, correo y plan de texto. La API determina la validez fiscal definitiva. Solo un 201 confirma la creación y abre la ficha; los errores conservan el formulario. Se mantiene el contexto del directorio al volver.
+- `/customers/:customer_id`: tarjetas de empresa y plan actual, simulador mensual e historial paginado con consumos, base, impuesto, total EUR, tasa, país y plan originales. Las fechas indican UTC y las cadenas decimales del servidor se muestran sin pasar por `Number`.
+- El simulador admite enteros de 0 a 1000000 en sus tres campos. El deslizador ajusta usuarios entre 0 y 1000; escribir más conserva el número y muestra un aviso. Mover después el deslizador elige un valor dentro de su rango. GB, llamadas y plan son contexto, sin cargos añadidos.
+- Cada edición retira inmediatamente la preview anterior y cancela la consulta vigente, también si la entrada es inválida. Se espera 300 ms antes de consultar el nuevo cálculo. Guardar exige una preview vigente; el resultado de un 201 sustituye al anterior y el historial vuelve a su primera página. No hay reintentos automáticos de escrituras.
+- Estados de carga, directorio vacío, búsqueda sin coincidencias, cliente inexistente, historial vacío, validación, conflicto de alta, país sin política fiscal, fallo HTTP/red y espera agotada a los 10 segundos. El fallo de historial conserva la ficha y el simulador.
 
-No se incluyen datos de demostración ni se escribe desde Angular. En una base nueva el directorio estará vacío; puedes preparar datos ficticios mediante los ejemplos de la API que siguen. No hay controles de alta, nueva simulación o divisas que aparenten estar disponibles.
+No se incluyen datos de demostración en la aplicación. En una base nueva el directorio estará vacío; usa «Nuevo cliente» o los ejemplos ficticios de la API que siguen. No se consultan servicios de divisas.
+
+Recorrido comprobado con ambos servidores locales arrancados:
+
+1. En `/customers`, pulsa **Nuevo cliente**. Completa los cinco campos; para una prueba ficticia puedes usar «Empresa Ficticia Alfa», ES, `00000023T`, `pruebas@example.com` y «Plan de prueba». Si esa combinación país/identificador ya existe, se mostrará el conflicto 409.
+2. Pulsa **Crear cliente**. Tras el 201 se abre su ficha. Introduce 15 usuarios, 100 GB y 1000 llamadas; la preview real para ES devolvió `169.40 EUR`, con base `140.00`, impuesto `29.40` y tasa `0.21`.
+3. Pulsa **Guardar simulación**. La confirmación utiliza la respuesta persistida, con ID y fecha UTC, y avisa si difiere de la preview. **Ver historial** lleva al encabezado del historial; el registro nuevo aparece en la primera página. Para consultar cero usuarios sin editar, pulsa **Calcular precio**.
+
+Si no se puede confirmar un guardado, puede haberse registrado aunque no llegue la respuesta. **Revisar historial** solo consulta; no repite el POST. Tras revisarlo, **Volver a calcular** permite preparar otra operación que requerirá de nuevo pulsar Guardar. Editar por sí solo no desbloquea un guardado incierto.
 
 Build de producción y pruebas Angular, también desde la raíz:
 
@@ -85,7 +96,7 @@ npm --prefix frontend test
 
 El compilado está en `frontend/dist/saas-o-matic/browser`. Los tests usan el runner oficial Angular/Vitest con jsdom y `HttpTestingController`; no requieren arrancar FastAPI.
 
-Se verificaron instalación desde el lockfile, arranque de ambos servidores y navegación contra FastAPI real sobre SQLite temporal, con datos declarados ficticios. La revisión en navegador cubrió escritorio a 1440 × 1000, móvil a 390 × 844 y ficha a 320 × 700, teclado, paginación y recuperación tras detener/reiniciar la API. No equivale a una auditoría de accesibilidad ni a una instalación en otro equipo. Comandos, resultados e incidencias se registran en la [bitácora](ai-workspace/05-ai-development-log.md).
+La instalación desde el lockfile se verificó en la entrega inicial. En el Prompt #30 se ejecutaron build de producción y 73 pruebas Angular en 9 archivos, todas correctas. Se comprobó alta → ficha → preview → guardado → historial con FastAPI real sobre SQLite aislado y datos ficticios, escritorio 1440 × 1000, móvil 375 × 812 / 320 × 700 y anchura de tablet 768 × 1024. Se revisaron teclado, foco, límites, validación fiscal, conflicto, paginación y caída/recuperación de la API. No equivale a una auditoría de accesibilidad ni a una instalación en otro equipo. Comandos, resultados e incidencias se registran en la [bitácora](ai-workspace/05-ai-development-log.md).
 
 ### Comprobación manual de la API
 

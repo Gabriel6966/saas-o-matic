@@ -1,7 +1,10 @@
 @let view = state();
 <header class="page-heading">
-  <h1 id="page-title" tabindex="-1">Clientes</h1>
-  <p class="page-intro">Encuentra una empresa y consulta sus simulaciones guardadas.</p>
+  <div class="heading-with-action">
+    <div><h1 id="page-title" tabindex="-1">Clientes</h1>
+    <p class="page-intro">Encuentra una empresa y consulta sus simulaciones guardadas.</p></div>
+    <a class="button" routerLink="/customers/new" [queryParams]="{q: search.value || null, offset: currentOffset()}">Nuevo cliente</a>
+  </div>
 </header>
 
 <form class="search-area" role="search" (submit)="$event.preventDefault()">

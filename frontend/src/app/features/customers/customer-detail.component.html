@@ -26,6 +26,7 @@
     </section>
   }
   @case ('success') {
+    @if (createdCustomerId === view.data.id) { <p class="form-notice" role="status">Cliente creado correctamente. Ya puedes preparar su simulación.</p> }
     <div class="customer-cards">
       <section class="surface identity-card" aria-labelledby="identity-title">
         <div class="card-heading"><h2 id="identity-title">{{ view.data.company_name }}</h2><span class="customer-reference">Cliente #{{ view.data.id }}</span></div>
@@ -41,6 +42,7 @@
         <p class="plan-note">El historial conserva el plan utilizado en cada simulación.</p>
       </section>
     </div>
-    <app-simulation-history [customerId]="view.data.id" />
+    <app-simulation-editor [customerId]="view.data.id" (saved)="refreshHistory()" (historyRequested)="refreshHistory(true)" />
+    <app-simulation-history [customerId]="view.data.id" [refreshToken]="historyRefresh()" />
   }
 }
