@@ -93,4 +93,9 @@ export class CustomerSearchComponent {
     });
   }
 
+  currentOffset(): number | null {
+    const view = this.state();
+    return view.status === 'success' ? view.data.offset || null : null;
+  }
+
 }

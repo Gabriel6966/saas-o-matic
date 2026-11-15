@@ -1,0 +1,66 @@
+<a class="back-link" routerLink="/customers" [queryParams]="backQuery()">Volver a clientes</a>
+<header class="page-heading">
+  <h1 id="page-title" tabindex="-1">Nuevo cliente</h1>
+  <p class="page-intro">Registra la empresa para preparar y guardar sus simulaciones.</p>
+</header>
+<div class="create-layout">
+  <form class="surface create-form" [formGroup]="form" (ngSubmit)="submit()" novalidate [attr.aria-busy]="submitting()">
+    <h2>Datos de la empresa</h2>
+    <p class="form-note">Todos los campos son obligatorios.</p>
+    <div id="create-feedback" tabindex="-1" aria-live="polite">
+      @if (error(); as message) { <p class="form-alert" role="alert">{{ message }}</p> }
+      @if (created(); as customer) {
+        <p class="form-notice">Cliente creado. <a [routerLink]="['/customers', customer.id]" [queryParams]="backQuery()">Abrir su ficha</a></p>
+      }
+    </div>
+    <fieldset class="form-fields" [disabled]="submitting() || !!created()">
+      <div class="form-field field-wide">
+        <label for="create-company_name">Nombre de la empresa</label>
+        <input class="field-control" id="create-company_name" formControlName="company_name" autocomplete="organization" required
+          aria-describedby="company-help company-error" [attr.aria-invalid]="!!fieldError('company_name')">
+        <p class="field-help" id="company-help">Hasta 200 caracteres.</p>
+        @if (fieldError('company_name'); as message) { <p class="input-error" id="company-error">{{ message }}</p> }
+      </div>
+      <div class="form-field">
+        <label for="create-country_code">País</label>
+        <select class="field-control" id="create-country_code" formControlName="country_code" required
+          aria-describedby="country-help country-error" [attr.aria-invalid]="!!fieldError('country_code')">
+          <option value="ES">España (ES)</option><option value="FR">Francia (FR)</option><option value="DE">Alemania (DE)</option>
+        </select>
+        <p class="field-help" id="country-help">Cobertura inicial del simulador.</p>
+        @if (fieldError('country_code'); as message) { <p class="input-error" id="country-error">{{ message }}</p> }
+      </div>
+      <div class="form-field">
+        <label for="create-tax_identifier">Identificador fiscal</label>
+        <input class="field-control" id="create-tax_identifier" formControlName="tax_identifier" autocomplete="off" spellcheck="false" required
+          aria-describedby="tax-help tax-error" [attr.aria-invalid]="!!fieldError('tax_identifier')">
+        <p class="field-help" id="tax-help">Hasta 32 caracteres. Para ES, sin separadores ni prefijo ES. La API comprueba su validez definitiva.</p>
+        @if (fieldError('tax_identifier'); as message) { <p class="input-error" id="tax-error">{{ message }}</p> }
+      </div>
+      <div class="form-field field-wide">
+        <label for="create-email">Correo electrónico</label>
+        <input class="field-control" id="create-email" type="email" formControlName="email" autocomplete="email" required
+          aria-describedby="email-help email-error" [attr.aria-invalid]="!!fieldError('email')">
+        <p class="field-help" id="email-help">Hasta 254 caracteres.</p>
+        @if (fieldError('email'); as message) { <p class="input-error" id="email-error">{{ message }}</p> }
+      </div>
+      <div class="form-field field-wide">
+        <label for="create-plan">Plan</label>
+        <input class="field-control" id="create-plan" formControlName="plan" autocomplete="off" required
+          aria-describedby="plan-help plan-error" [attr.aria-invalid]="!!fieldError('plan')">
+        <p class="field-help" id="plan-help">Nombre o referencia, hasta 100 caracteres. No modifica el precio.</p>
+        @if (fieldError('plan'); as message) { <p class="input-error" id="plan-error">{{ message }}</p> }
+      </div>
+    </fieldset>
+    <div class="form-actions">
+      <button class="button" type="submit" [disabled]="submitting() || !!created()">{{ submitting() ? 'Creando cliente…' : 'Crear cliente' }}</button>
+      <a class="button button--secondary" routerLink="/customers" [queryParams]="backQuery()">Volver al directorio</a>
+    </div>
+  </form>
+  <aside class="create-aside" aria-labelledby="policy-title">
+    <h2 id="policy-title">Antes de simular</h2>
+    <p>El país determina la política comercial del cálculo: ES 21 %, FR 20 % y DE 19 %.</p>
+    <p>Estas tasas son una simplificación comercial de la prueba, no una estimación fiscal oficial.</p>
+    <p>El plan se conserva como contexto. No hay un catálogo de tarifas por plan.</p>
+  </aside>
+</div>

@@ -1,0 +1,110 @@
+@let view = state();
+<section class="simulator" aria-labelledby="simulator-title">
+  <header class="simulator-heading">
+    <h2 id="simulator-title">Simulador mensual</h2>
+    <p>Ajusta el consumo y consulta el cálculo antes de guardarlo.</p>
+  </header>
+  <div class="surface simulator-layout">
+    <form class="simulation-form" [formGroup]="form" (ngSubmit)="calculate()" novalidate>
+      <fieldset class="form-fields" [disabled]="saving()">
+        <div class="form-field field-wide users-field">
+          <label for="simulation-active_users">Usuarios activos</label>
+          <input class="field-control users-number" id="simulation-active_users" formControlName="active_users" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" required
+            aria-describedby="users-help users-error slider-help" [attr.aria-invalid]="!!fieldError('active_users')">
+          <label class="slider-label" for="users-slider">Ajuste rápido de usuarios</label>
+          <input class="users-slider" id="users-slider" type="range" min="0" [max]="sliderMax" step="1" [value]="sliderValue()"
+            (input)="moveSlider($event)" aria-describedby="slider-help"
+            [attr.aria-valuetext]="outsideSlider() ? 'Límite del deslizador: 1000. La entrada conserva ' + values().active_users + ' usuarios.' : values().active_users + ' usuarios'">
+          <div class="slider-scale" aria-hidden="true"><span>0</span><span>1.000 usuarios</span></div>
+          <p class="field-help" id="users-help">De 0 a 1000000 usuarios, sin decimales.</p>
+          <p class="field-help" id="slider-help" aria-live="polite">
+            @if (outsideSlider()) { Has escrito {{ values().active_users }}. Se conserva ese valor. El deslizador llega a 1000; moverlo elegirá un valor de 0 a 1000. }
+            @else { Usa el deslizador hasta 1000 o escribe una cantidad mayor en el campo. }
+          </p>
+          @if (fieldError('active_users'); as message) { <p class="input-error" id="users-error">{{ message }}</p> }
+        </div>
+        <div class="form-field">
+          <label for="simulation-storage_gb">Almacenamiento (GB)</label>
+          <input class="field-control" id="simulation-storage_gb" formControlName="storage_gb" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" required
+            aria-describedby="storage-help storage-error" [attr.aria-invalid]="!!fieldError('storage_gb')">
+          <p class="field-help" id="storage-help">Entero de 0 a 1000000.</p>
+          @if (fieldError('storage_gb'); as message) { <p class="input-error" id="storage-error">{{ message }}</p> }
+        </div>
+        <div class="form-field">
+          <label for="simulation-api_calls">Llamadas API</label>
+          <input class="field-control" id="simulation-api_calls" formControlName="api_calls" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" required
+            aria-describedby="calls-help calls-error" [attr.aria-invalid]="!!fieldError('api_calls')">
+          <p class="field-help" id="calls-help">Entero de 0 a 1000000.</p>
+          @if (fieldError('api_calls'); as message) { <p class="input-error" id="calls-error">{{ message }}</p> }
+        </div>
+      </fieldset>
+      <p class="context-note">Almacenamiento, llamadas API y plan se guardan como contexto; no modifican el precio.</p>
+      <div class="form-actions">
+        <button class="button button--secondary" type="submit" [disabled]="saving() || view.status === 'pending' || view.status === 'loading'">
+          {{ uncertain() ? 'Volver a calcular' : view.status === 'error' ? 'Reintentar cálculo' : 'Calcular precio' }}
+        </button>
+      </div>
+    </form>
+
+    <div class="quote-panel" [attr.aria-busy]="view.status === 'pending' || view.status === 'loading' || saving()">
+      <div class="quote-status" aria-live="polite" aria-atomic="true">
+        @switch (view.status) {
+          @case ('idle') { <h3>Prepara tu simulación</h3><p>Edita el consumo o pulsa Calcular precio para consultar también cero usuarios.</p> }
+          @case ('invalid') { <h3>Revisa el consumo</h3><p>Los tres valores deben ser enteros de 0 a 1000000. No hay un precio vigente.</p> }
+          @case ('pending') { <h3>Entradas modificadas</h3><p>Esperando a que termines de editar. El precio anterior ya no está vigente.</p> }
+          @case ('loading') { <h3>Calculando precio…</h3><p>Consultando el consumo actual. Todavía no se ha guardado.</p> }
+          @case ('error') {
+            @if (!saveError()) {
+              @if (view.error.code === 'tax_policy_not_configured') {
+                <h3>País sin política fiscal</h3><p>No se puede calcular para este país. No se aplica una tasa del 0 %.</p>
+              } @else { <h3>No se pudo calcular</h3><p>{{ view.error.message }}</p> }
+              @for (detail of view.error.details; track $index) { <p>{{ detail.message }}</p> }
+              @if (view.error.code !== 'tax_policy_not_configured') { <p>Corrige el consumo o pulsa Reintentar cálculo.</p> }
+            }
+          }
+          @case ('ready') { <h3>Precio actualizado</h3><p>Previsualización del consumo actual. Aún sin guardar.</p> }
+          @case ('saved') { <h3>Resultado guardado</h3><p>Importes confirmados por el servidor al guardar.</p> }
+        }
+      </div>
+      @if (view.status === 'ready' || view.status === 'saved') {
+        <div class="quote-total"><span>Total mensual</span><strong>{{ view.data.total_amount }} <small>{{ view.data.currency }}</small></strong></div>
+        <dl class="quote-breakdown">
+          <div><dt>Base</dt><dd>{{ view.data.base_amount }} {{ view.data.currency }}</dd></div>
+          <div><dt>Impuesto</dt><dd>{{ view.data.tax_amount }} {{ view.data.currency }}</dd></div>
+          <div><dt>Tasa (fracción sobre la base)</dt><dd>{{ view.data.tax_rate }}</dd></div>
+          <div><dt>País del cálculo</dt><dd>{{ view.data.country_code | countryName }} ({{ view.data.country_code }})</dd></div>
+          <div><dt>Plan del cálculo</dt><dd>{{ view.data.plan }}</dd></div>
+        </dl>
+      }
+      <div id="simulation-feedback" tabindex="-1">
+      @if (saveError(); as error) {
+        <div class="form-alert" role="alert">
+          @if (uncertain()) {
+            <p>No pudimos confirmar el guardado. Puede haberse registrado. Revisa el historial antes de repetirlo; no se reenviará automáticamente.</p>
+            <button class="button button--secondary" type="button" (click)="historyRequested.emit()">Revisar historial</button>
+            <p>Para una nueva operación, pulsa Volver a calcular y decide después si guardarla.</p>
+          } @else if (error.code === 'tax_policy_not_configured') {
+            <p>No se ha guardado: el país no tiene una política fiscal configurada.</p>
+          } @else {
+            <p>No se ha guardado. {{ error.message }}</p>
+            @for (detail of error.details; track $index) { <p>{{ detail.message }}</p> }
+          }
+        </div>
+      }
+      @if (receipt(); as confirmation) {
+        <div class="save-confirmation" role="status">
+          <p><strong>Simulación #{{ confirmation.data.id }} guardada.</strong></p>
+          <p><time [attr.datetime]="confirmation.data.created_at">{{ confirmation.data.created_at | utcDate }} UTC</time></p>
+          @if (confirmation.priceChanged) { <p>El cálculo guardado difiere de la preview: {{ confirmation.preview.total_amount }} {{ confirmation.preview.currency }} → {{ confirmation.data.total_amount }} {{ confirmation.data.currency }}. Se muestra el resultado persistido.</p> }
+          @if (confirmation.contextChanged) { <p>El contexto del cálculo cambió al guardar. Consulta arriba el país, plan y tasa persistidos.</p> }
+          <p>El historial se vuelve a consultar desde la primera página.</p>
+          <button class="button button--secondary" type="button" (click)="historyRequested.emit()">Ver historial</button>
+        </div>
+      }
+      </div>
+      <button class="button save-button" type="button" (click)="save()" [disabled]="!canSave()">{{ saving() ? 'Guardando simulación…' : 'Guardar simulación' }}</button>
+      <p class="field-help">El guardado vuelve a calcular en el servidor. No se guarda mientras editas.</p>
+    </div>
+  </div>
+  <p class="policy-note">Política comercial simplificada de la prueba; no es una estimación fiscal oficial. Importes originales en EUR.</p>
+</section>

@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, combineLatest, concat, distinctUntilChanged, map, of, startWith, Subject, switchMap } from 'rxjs';
 import { toApiError } from '../../core/api/api-error';
@@ -18,15 +18,17 @@ import { StatusPanelComponent } from '../../shared/status-panel.component';
 })
 export class SimulationHistoryComponent {
   readonly customerId = input.required<number>();
+  readonly refreshToken = input(0);
+  private readonly context = computed(() => ({ id: this.customerId(), refresh: this.refreshToken() }));
   private readonly api = inject(SimulationsApiService);
   private readonly document = inject(DOCUMENT);
   private readonly pageRequest = new Subject<number>();
   private readonly retryRequest = new Subject<void>();
 
-  readonly state = toSignal<LoadState<Page<Simulation>>, LoadState<Page<Simulation>>>(toObservable(this.customerId).pipe(
+  readonly state = toSignal<LoadState<Page<Simulation>>, LoadState<Page<Simulation>>>(toObservable(this.context).pipe(
     distinctUntilChanged(),
-    // Al cambiar de cliente se cancela el historial anterior y se vuelve a offset 0.
-    switchMap((id) => combineLatest([
+    // Cambiar de cliente o confirmar un guardado cancela la página anterior y vuelve a 0.
+    switchMap(({ id }) => combineLatest([
       this.pageRequest.pipe(startWith(0)), this.retryRequest.pipe(startWith(undefined)),
     ]).pipe(switchMap(([offset]) => concat(
       of<LoadState<Page<Simulation>>>({ status: 'loading' }),

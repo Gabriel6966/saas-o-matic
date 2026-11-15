@@ -1,4 +1,12 @@
-/** Contratos de lectura A-06. Los decimales son texto exacto del servidor. */
+/** Contratos A-06. Los decimales son texto exacto del servidor. */
+export interface CustomerCreate {
+  readonly company_name: string;
+  readonly tax_identifier: string;
+  readonly email: string;
+  readonly country_code: string;
+  readonly plan: string;
+}
+
 export interface CustomerSummary {
   readonly id: number;
   readonly company_name: string;
@@ -18,12 +26,14 @@ export interface Page<T> {
   readonly total_count: number;
 }
 
-export interface Simulation {
-  readonly id: number;
+export interface SimulationInput {
   readonly customer_id: number;
   readonly active_users: number;
   readonly storage_gb: number;
   readonly api_calls: number;
+}
+
+export interface SimulationPreview extends SimulationInput {
   readonly country_code: string;
   readonly plan: string;
   readonly base_amount: string;
@@ -31,6 +41,10 @@ export interface Simulation {
   readonly tax_amount: string;
   readonly total_amount: string;
   readonly currency: 'EUR';
+}
+
+export interface Simulation extends SimulationPreview {
+  readonly id: number;
   readonly created_at: string;
 }
 

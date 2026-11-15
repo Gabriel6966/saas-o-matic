@@ -2,11 +2,14 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting, TestRequest } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { customer, page, serviceError } from '../../../testing/fixtures';
+import { customer, page, serviceError, simulation } from '../../../testing/fixtures';
 import { API_BASE_URL } from '../../core/api/api-base-url';
 import { CustomerDetailComponent } from './customer-detail.component';
+import { SimulationEditorComponent } from '../simulations/simulation-editor.component';
+import { SimulationHistoryComponent } from '../simulations/simulation-history.component';
 
 @Component({ template: '<h1>Directorio</h1>' })
 class SearchDestination {}
@@ -90,7 +93,7 @@ describe('Ficha de cliente y navegación', () => {
     refresh();
     expect(root().textContent).toContain(customer.email);
     expect(root().textContent).toContain('No se pudo cargar el historial');
-    root().querySelector<HTMLButtonElement>('button')!.click();
+    root().querySelector<HTMLButtonElement>('.history button')!.click();
     (await request('/customers/1/simulations')).flush(page([]));
     refresh();
     http.expectNone((r) => r.url === '/api/customers/1');
@@ -121,5 +124,30 @@ describe('Ficha de cliente y navegación', () => {
     refresh();
     (await request('/customers/2/simulations')).flush(page([]));
     refresh();
+  });
+
+  it('un 201 refresca el historial desde la primera página y conserva la ficha y snapshots', async () => {
+    harness = await RouterTestingHarness.create('/customers/1?q=Ábaco&offset=20');
+    (await request('/customers/1')).flush(customer); refresh();
+    (await request('/customers/1/simulations')).flush(page([simulation], 21)); refresh();
+    const history = harness.routeDebugElement!.query(By.directive(SimulationHistoryComponent)).componentInstance as SimulationHistoryComponent;
+    history.goToOffset(20);
+    const oldPage = await request('/customers/1/simulations');
+    expect(oldPage.request.params.get('offset')).toBe('20');
+    oldPage.flush(page([simulation], 21, 20)); refresh();
+    const editor = harness.routeDebugElement!.query(By.directive(SimulationEditorComponent)).componentInstance as SimulationEditorComponent;
+    editor.form.setValue({ active_users: '15', storage_gb: '100', api_calls: '1000' });
+    (await request('/simulations/preview')).flush(simulation); refresh();
+    editor.save();
+    const persisted = { ...simulation, id: 102, country_code: 'ES', tax_rate: '0.21', tax_amount: '29.40', total_amount: '169.40' };
+    (await request('/simulations')).flush(persisted, { status: 201, statusText: 'Created' }); refresh();
+    const refreshed = await request('/customers/1/simulations');
+    expect(refreshed.request.params.get('offset')).toBe('0');
+    refreshed.flush(page([persisted, simulation], 22)); refresh();
+    expect(root().querySelector('.identity-card')?.textContent).toContain(customer.company_name);
+    expect(root().querySelector('.history')?.textContent).toContain('Simulación #102');
+    expect(root().querySelector('.history')?.textContent).toContain('0.2000');
+    expect(root().querySelector('.back-link')?.getAttribute('href')).toContain('offset=20');
+    http.expectNone((r) => r.url === '/api/customers/1');
   });
 });
