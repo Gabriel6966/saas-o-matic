@@ -1,0 +1,48 @@
+<a class="back-link" routerLink="/customers" [queryParams]="backQuery()">
+  <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M16 10H4m5-5-5 5 5 5"/></svg>Volver a clientes
+</a>
+@let view = state();
+<header class="page-heading">
+  <div>
+    <h1 id="page-title" tabindex="-1">{{ view.status === 'success' ? 'Ficha de cliente' : 'Detalle de cliente' }}</h1>
+  </div>
+</header>
+
+@switch (view.status) {
+  @case ('loading') {
+    <section class="surface" aria-busy="true"><app-status-panel kind="loading" title="Cargando la ficha" message="Estamos consultando los datos de la empresa." /></section>
+  }
+  @case ('invalid') {
+    <section class="surface"><app-status-panel kind="error" title="Identificador de cliente no válido" message="Vuelve al directorio y selecciona una empresa para abrir su ficha." /></section>
+  }
+  @case ('error') {
+    <section class="surface">
+      @if (view.error.code === 'customer_not_found') {
+        <app-status-panel kind="error" title="Este cliente no existe" message="La ficha no está disponible. Vuelve al directorio para buscar otra empresa." />
+      } @else {
+        <app-status-panel kind="error" title="No se pudo cargar la ficha" [message]="view.error.message" [details]="view.error.details"
+          actionLabel="Reintentar" (action)="retry()" />
+      }
+    </section>
+  }
+  @case ('success') {
+    @if (createdCustomerId === view.data.id) { <p class="form-notice" role="status">Cliente creado correctamente. Ya puedes preparar su simulación.</p> }
+    <div class="customer-cards">
+      <section class="surface identity-card" aria-labelledby="identity-title">
+        <div class="card-heading"><h2 id="identity-title">{{ view.data.company_name }}</h2><span class="customer-reference">Cliente #{{ view.data.id }}</span></div>
+        <dl class="identity-fields">
+          <div><dt>Identificador fiscal</dt><dd>{{ view.data.tax_identifier }}</dd></div>
+          <div><dt>País</dt><dd class="country-value"><span class="country-code">{{ view.data.country_code }}</span>{{ view.data.country_code | countryName }}</dd></div>
+          <div class="email-field"><dt>Correo electrónico</dt><dd><a [href]="'mailto:' + view.data.email">{{ view.data.email }}</a></dd></div>
+        </dl>
+      </section>
+      <section class="surface plan-card" aria-labelledby="plan-title">
+        <h2 id="plan-title">Plan actual</h2>
+        <p class="plan-name">{{ view.data.plan }}</p>
+        <p class="plan-note">El historial conserva el plan utilizado en cada simulación.</p>
+      </section>
+    </div>
+    <app-simulation-editor [customerId]="view.data.id" (saved)="refreshHistory()" (historyRequested)="refreshHistory(true)" />
+    <app-simulation-history [customerId]="view.data.id" [refreshToken]="historyRefresh()" />
+  }
+}

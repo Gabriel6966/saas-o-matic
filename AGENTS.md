@@ -3,18 +3,20 @@
 ## Contexto
 SaaS-O-Matic es una prueba técnica para un puesto Full-Stack AI-Augmented. Se evaluarán la planificación basada en especificaciones (Spec-Driven Development), el criterio técnico, el control de calidad y la aplicación funcional.
 
-## Tecnologías propuestas
+## Stack aprobado (D-11)
 - Backend: Python + FastAPI + SQLAlchemy + SQLite.
 - Frontend: Angular + TypeScript.
 - Pruebas: pytest y herramientas de pruebas de Angular.
 - Documentación: Markdown en `ai-workspace/`.
 
-Estas son decisiones técnicas propuestas, no requisitos obligatorios de la empresa. No añadas AWS, Terraform, autenticación ni infraestructura extra salvo aprobación explícita.
+Python/FastAPI, SQLAlchemy y Angular/TypeScript forman el stack aprobado para este proyecto mediante D-11; SQLite es además un requisito original del reto. No añadas AWS, Terraform, autenticación ni infraestructura extra salvo aprobación explícita.
 
 ## Fuentes y prioridades
 1. `ai-workspace/00-project-scope.md` resume el alcance obligatorio del reto (no es una transcripción literal).
 2. `ai-workspace/01-requirements.md` contiene la especificación funcional y las decisiones pendientes.
 3. Las especificaciones y contratos posteriores describen decisiones aprobadas.
+
+La fuente de referencia para el estado de las decisiones técnicas es `ai-workspace/decision-log.md`. Las especificaciones aprobadas rigen la implementación.
 
 El documento original facilitado por Roams se conserva como referencia externa al repositorio. Si hay dudas o contradicciones, señalarlas antes de implementar. No convertir propuestas o supuestos en requisitos del enunciado.
 
@@ -33,7 +35,7 @@ El documento original facilitado por Roams se conserva como referencia externa a
 - Usa `Decimal` para importes monetarios del backend y define explícitamente reglas de redondeo.
 - Valida entrada no confiable en el backend; valida identificadores fiscales españoles mediante algoritmos de control, no únicamente con regex.
 - No inventes tarifas de almacenamiento, llamadas API ni planes. El enunciado no las define.
-- La política de impuestos para distintos países está pendiente de decisión; no presupongas impuestos universales.
+- Aplica la política fiscal simplificada aprobada en D-01: ES 21 %, FR 20 % y DE 19 %; no calcules simulaciones para países sin política definida.
 - Trata fallos, estados de carga y ausencia de conexión a la API externa de cambio.
 - No introduzcas credenciales en código ni en Git.
 - Mantén módulos pequeños, con nombres claros y responsabilidades únicas.

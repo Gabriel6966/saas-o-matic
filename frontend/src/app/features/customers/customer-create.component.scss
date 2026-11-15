@@ -1,0 +1,7 @@
+.create-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--space-12); align-items: start; }
+.create-form { padding: var(--space-8); min-width: 0; }
+.create-aside { padding-top: var(--space-6); max-width: 36ch; }
+.create-aside h2 { font-family: var(--font-heading); font-size: 26px; font-weight: 400; }
+.create-aside p { margin-top: var(--space-4); color: var(--muted); font-size: 14px; }
+@media (max-width: 800px) { .create-layout { grid-template-columns: 1fr; gap: var(--space-6); } .create-aside { max-width: 65ch; padding-top: 0; } }
+@media (max-width: 600px) { .create-form { padding: var(--space-5); } }
