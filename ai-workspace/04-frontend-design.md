@@ -182,3 +182,39 @@ Para el simulador futuro quedan disponibles los tokens de tipografía, color, es
 El alta y el simulador extienden Editorial B2B premium sin cambiar su dirección. Reutilizan los tokens aprobados y comparten etiquetas, ayudas, campos, errores y acciones. El alta separa datos y explicación fiscal; el simulador coloca consumo y resultado en dos columnas, apiladas en móvil. La confirmación de guardado muestra el resultado persistido y lleva el foco a un contenedor estable; el historial mantiene su presentación y snapshots.
 
 Las entradas de consumo conservan texto hasta validar enteros estrictos. El deslizador cubre 0–1000; el campo permite 1000000 y explica que moverlo volverá a su rango visual. Al editar desaparece el precio previo antes del debounce. Se verificaron escritorio, anchura de tablet, 375/320 px, teclado y textos largos contra FastAPI aislado; evidencia y límites en la entrada 14 de la bitácora. No se añaden fuentes, paquetes, tarifas ni divisas.
+
+## Prompt #34 — Mesa financiera SaaS — 2026-11-15
+
+### Elección humana y alcance
+
+La Fase A se realizó sin editar fuentes, en `style/final-visual-polish`, limpia sobre `3c15155`. Se inspeccionaron componentes, contratos, estilos y pruebas, y se capturó el estado anterior con datos ficticios aislados. Se presentaron A, evolución editorial refinada, y B, Mesa financiera SaaS. El usuario respondió expresamente: «Apruebo la opción B — Mesa financiera SaaS», manteniendo fondo cálido, tipografía elegante y paleta petróleo/verde bosque. Esta elección sustituye la recomendación A del agente; no supone aprobación final de la implementación.
+
+Se aplicó la skill instalada `frontend-design`. La implementación cambia únicamente ocho SCSS. No hizo falta modificar HTML: se mantienen íntegros textos, interpolaciones, bindings, eventos, orden del DOM, controles y atributos de accesibilidad. La documentación de diseño y la bitácora registran el resultado al terminar la verificación. No cambian TypeScript, servicios, RxJS, rutas, backend, persistencia, contratos, dependencias, configuración o pruebas.
+
+### Dirección implementada
+
+Se conserva la paleta base: petróleo `#173F43`, bosque `#2E604F`, fondo `#F4F2ED`, papel `#FFFEFA`, secundario `#5F6A63` y error `#A43040`. Se añaden tokens derivados para contornos de controles y para texto/separadores sobre petróleo. Georgia sigue en títulos y nombre de empresa; Segoe UI y sus alternativas del sistema, en lectura, controles e importes tabulares. Sin fuentes, iconos, paquetes, degradados ni animaciones nuevos.
+
+La composición concentra el contraste en el resultado del simulador. Consumo y resultado comparten dos columnas en escritorio, apiladas hasta 800 px. La cifra de usuarios ocupa el extremo derecho de su grupo en escritorio/tablet y vuelve debajo de su etiqueta en móvil, conservando el orden de teclado. El panel petróleo muestra el total claro, filas alineadas y separadores; Guardar utiliza papel sobre petróleo, con foco claro y un estado deshabilitado legible. Los errores conservan una superficie clara de validación dentro del panel.
+
+| Elemento | Antes | Después |
+| --- | --- | --- |
+| Resultado EUR | Fondo claro, total de 28–36 px. | Panel petróleo y total de 32–56 px según ancho; misma cadena del servidor. |
+| Desglose | Filas flex con huecos, menor diferencia entre etiqueta e importe. | Dos columnas de ancho controlado, importes alineados a la derecha, peso 600 y separadores. |
+| Ayudas y divisas | Texto secundario de 12–13 px. | Ayudas, tasa, fechas y atribución de 14 px; total convertido de 28 px y una columna para ese total en móvil. |
+| Directorio | Nombre de empresa de 16 px y filas mínimas de 76 px en escritorio. | Nombre de 18 px, filas de 84 px, cabecera de columnas de 14 px y búsqueda delimitada; Limpiar pasa debajo en móvil para liberar ancho. |
+| Formularios | Campos de 48 px y contornos suaves. | Campos de 52 px, etiquetas de 15 px y contornos con contraste calculado de 3.38:1 sobre papel. |
+| Ficha | Identidad con dos columnas y correo debajo; relleno de 32 px en escritorio. | Tres columnas de datos en escritorio amplio, relleno de 24 px y plan secundario más compacto. |
+| Historial | Título de 28 px, consumos de 16 px y metadatos de 12–13 px. | Título de 34 px en escritorio, consumos de 20 px, metadatos de 14 px y contexto desplegable con objetivo de 48 px. |
+
+### Verificación, correcciones y límites
+
+Se revisó el directorio antes/después a 1440×1000, 768×1024, 375×812 y 320×700, además de ficha y panel en esos cuatro anchos. Se observaron guardado e historial en escritorio/tablet, historial desplegado a 375, divisas en escritorio/tablet/móvil y alta a 1440/320. Se usaron capturas por secciones cuando el capturador rechazó páginas largas. La revisión móvil detectó que la especificidad de la regla de filas impedía la columna única del total convertido; se corrigió mediante `dl > .converted-total` y se volvió a comprobar GBP a 375 y USD a 320. La pista del range recibió contraste explícito, conservando el control nativo y su manejo con Home/End/Tab. Se mantiene la regla existente de `prefers-reduced-motion`.
+
+Contrastes sRGB calculados sobre los tokens: papel/petróleo **11.38:1**, secundario claro/petróleo **7.61:1**, secundario/papel **5.58:1**, secundario/fondo **5.03:1**, secundario/fondo de divisas **5.11:1**, bosque/papel **7.17:1** y error/papel **6.77:1**. El contorno de campos y pista alcanza **3.38:1** sobre papel y **3.05:1** sobre el fondo cálido. Se observaron focos de teclado claros en el panel y verdes en superficies claras. Estos cálculos y comprobaciones no constituyen una auditoría completa de accesibilidad.
+
+Build final correcto, sin avisos: **282.58 kB** iniciales y transferencia estimada **76.60 kB**. Suite Angular final: **118 pruebas en 12 archivos**, todas superadas en **17.90 s**, sin modificar tests. El primer build dentro del sandbox falló por acceso denegado a directorios; la ejecución autorizada fuera del sandbox compiló correctamente. La bitácora contiene el recorrido real contra FastAPI y el inventario exacto.
+
+Las capturas locales están excluidas de Git en `frontend/__screenshots__/`. `prompt34-before-*` conserva las 21 vistas de la Fase A; `prompt34-after-*` recoge estados e iteraciones. Las vistas finales del simulador son `prompt34-final-simulator-1440.jpg`, `prompt34-final-simulator-768.jpg`, `prompt34-final-simulator-375.jpg` y `prompt34-after-12-total-320.jpg`. La conversión móvil corregida está en `prompt34-after-22-gbp-375.jpg` y `prompt34-after-24-max-usd-320.jpg`. Las capturas completas `after-04/05` pertenecen a la primera pasada, anterior al ajuste de contraste de la pista; las vistas `final-simulator-*` muestran los estilos finales. No se presentan capturas fallidas como evidencia.
+
+La mayor legibilidad implica menos filas visibles y más recorrido vertical en móvil; ningún control se oculta para compensarlo. En las mediciones realizadas no hubo desbordamiento horizontal, tampoco con empresa de 200 caracteres, plan de 100, identificador de 32, correo de 126 o consumos de 1000000. IDs, fechas y conteos de las capturas difieren entre ejecuciones ficticias; no son métricas del producto. No se comprobaron otros navegadores/SO, lector de pantalla ni movimiento reducido a nivel del sistema. La vista local de revisión permanece en `http://localhost:4201`, con FastAPI en 8001 y SQLite temporal propia, sin utilizar la base personal. Revisión humana pendiente, sin commit, push ni PR.
