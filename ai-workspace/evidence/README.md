@@ -1,6 +1,6 @@
 # Evidencias del desarrollo asistido por IA
 
-Selección documental para Roams, preparada el **2026-11-17** con Codex. Ocho hitos permiten seguir el encargo, las decisiones registradas y el resultado técnico sin reconstruir conversaciones ausentes. El [resumen de revisión humana](human-review.md) es un borrador pendiente de confirmación del responsable.
+Selección documental para Roams, preparada el **2026-11-17** con Codex. Ocho hitos permiten seguir el encargo, las decisiones registradas y el resultado técnico sin reconstruir conversaciones ausentes. El [resumen de revisión humana](human-review.md) fue redactado retrospectivamente por Codex; el responsable ha leído y confirmado expresamente sus ocho entradas y sus limitaciones de evidencia el **2026-11-17**.
 
 ## Procedencia y límites
 
@@ -27,7 +27,7 @@ Las cabeceras de las especificaciones y los cierres que indican revisión pendie
 
 ## Trazabilidad Git contrastada
 
-Base de la selección: `eefd66885ebf57d32d77ef3d0110171179929860`, en `docs/ai-evidence-final`, con árbol limpio al comenzar. La consulta de `refs/heads/main` a GitHub confirmó ese mismo hash el 2026-11-17. No se actualizaron referencias locales ni se cambió de rama.
+Base de la preparación inicial: `eefd66885ebf57d32d77ef3d0110171179929860`, en `docs/ai-evidence-final`, con árbol limpio al comenzar. La consulta de `refs/heads/main` a GitHub confirmó ese mismo hash el 2026-11-17. No se actualizaron referencias locales ni se cambió de rama.
 
 | Resultado conservado | Commit | Integración que consta en el historial |
 | --- | --- | --- |
@@ -110,9 +110,9 @@ Hasta recibir esos archivos no se archivará ninguna respuesta como literal. Cad
 
 La selección no incorpora bases SQLite, capturas, compilados, logs de entorno, credenciales, correos personales ni metadatos de autores Git. La búsqueda de patrones obvios se limita a los documentos nuevos y no constituye una auditoría de seguridad. No se ejecutan build ni pruebas de aplicación en este encargo: los resultados citados conservan su condición histórica.
 
-El responsable debe confirmar el borrador en primera persona y revisar las ausencias antes de la entrega. Se recomienda un PR exclusivamente documental, por ejemplo `docs: archivar evidencias auténticas del desarrollo con IA`, después de su revisión. Este encargo no crea commit, push, merge ni PR.
+El responsable ha leído y confirmado el contenido de la revisión en primera persona y sus limitaciones el **2026-11-17**; las ausencias de originales se mantienen. La recomendación de un PR exclusivamente documental, por ejemplo `docs: archivar evidencias auténticas del desarrollo con IA`, correspondía a la preparación inicial; su integración mediante el PR #11 ya consta en el historial. Este encargo no crea commit, push, merge ni PR.
 
-## Comprobaciones de esta preparación
+## Comprobaciones de la preparación inicial (Prompt #37)
 
 - **Enlaces:** 81 referencias Markdown locales añadidas resuelven a archivos existentes, incluyendo las de los prompts copiados y los dos enlaces en documentos previos.
 - **Integridad y alcance:** las diez copias coinciden por SHA-256 con sus originales y con las huellas de este índice. De los 116 archivos ya versionados al comenzar, 114 permanecen idénticos; solo README y la aclaración puntual de la bitácora cambian. Hay doce documentos Markdown nuevos, sin ejecutables ni temporales. El índice Git sigue vacío.
