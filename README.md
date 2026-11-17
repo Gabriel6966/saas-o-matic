@@ -15,7 +15,7 @@ Prueba técnica Full-Stack AI-Augmented — herramienta interna de simulación d
 - Especificación inicial: [`ai-workspace/01-requirements.md`](ai-workspace/01-requirements.md)
 - Instrucciones para Codex: [`AGENTS.md`](AGENTS.md)
 - Bitácora de IA: [`ai-workspace/05-ai-development-log.md`](ai-workspace/05-ai-development-log.md)
-- Selección de evidencias de IA y revisión humana: [`ai-workspace/evidence/README.md`](ai-workspace/evidence/README.md)
+- Evidencias de desarrollo asistido por IA: [índice, prompts originales y revisión humana](ai-workspace/evidence/README.md)
 - Dirección visual de Angular: [`ai-workspace/04-frontend-design.md`](ai-workspace/04-frontend-design.md)
 
 ## Ejecución local
